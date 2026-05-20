@@ -1,0 +1,382 @@
+@import "tailwindcss";
+
+/* ─── Animated Mesh Gradient Background ─── */
+@keyframes meshShift {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  25%      { transform: translate(5%, -5%) scale(1.05); }
+  50%      { transform: translate(-3%, 8%) scale(0.97); }
+  75%      { transform: translate(-6%, -3%) scale(1.03); }
+}
+
+@keyframes meshShift2 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  30%      { transform: translate(-7%, 4%) scale(1.08); }
+  60%      { transform: translate(5%, -6%) scale(0.95); }
+}
+
+@keyframes meshShift3 {
+  0%, 100% { transform: translate(0%, 0%) scale(1); }
+  35%      { transform: translate(4%, 6%) scale(1.04); }
+  70%      { transform: translate(-5%, -4%) scale(0.98); }
+}
+
+@keyframes auraPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+@layer base {
+  body {
+    background: #f8fafc;
+    color: #1e293b;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* ─── Global Ethereal Mesh Background (Light Mode) ─── */
+  .ethereal-mesh-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+
+  .ethereal-mesh-bg .mesh-blob-1 {
+    position: absolute;
+    top: -15%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
+    max-width: 900px;
+    max-height: 900px;
+    background: radial-gradient(circle, rgba(255, 218, 185, 0.4) 0%, transparent 70%); /* Peach */
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: meshShift 20s ease-in-out infinite;
+  }
+
+  .ethereal-mesh-bg .mesh-blob-2 {
+    position: absolute;
+    bottom: -20%;
+    right: -10%;
+    width: 55vw;
+    height: 55vw;
+    max-width: 850px;
+    max-height: 850px;
+    background: radial-gradient(circle, rgba(152, 255, 152, 0.3) 0%, transparent 70%); /* Mint Green */
+    border-radius: 50%;
+    filter: blur(100px);
+    animation: meshShift2 25s ease-in-out infinite;
+  }
+
+  .ethereal-mesh-bg .mesh-blob-3 {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 45vw;
+    height: 45vw;
+    max-width: 700px;
+    max-height: 700px;
+    background: radial-gradient(circle, rgba(135, 206, 250, 0.25) 0%, transparent 70%); /* Baby Blue */
+    border-radius: 50%;
+    filter: blur(90px);
+    animation: meshShift3 22s ease-in-out infinite;
+  }
+
+  /* ─── Glassmorphism Panels ─── */
+  .glass-panel {
+    @apply backdrop-blur-xl bg-white/60 border border-white/80 shadow-sm text-slate-800;
+  }
+
+  .glass-sidebar {
+    @apply backdrop-blur-2xl bg-white/50 border-r border-white/60 text-slate-800;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/60 border border-white/80 rounded-2xl shadow-sm text-slate-800;
+  }
+
+  .glass-input {
+    @apply bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 text-slate-800 placeholder-slate-400 transition-all outline-none;
+  }
+
+  /* ─── Custom Scrollbar ─── */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.18);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.32);
+  }
+}
+
+/* ─── Tiptap / ProseMirror Editor Styles (Light Ethereal Theme) ─── */
+
+.tiptap-editor .ProseMirror {
+  outline: none;
+  min-height: 50vh;
+  color: #475569; /* slate-600 */
+  font-size: 1rem;
+  line-height: 1.8;
+  caret-color: #6366f1; /* indigo-500 */
+}
+
+.tiptap-editor .ProseMirror p {
+  margin-bottom: 0.75em;
+}
+
+.tiptap-editor .ProseMirror h1 {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  color: #0f172a; /* slate-900 */
+  font-size: 2em;
+  font-weight: 700;
+  margin-top: 1.2em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+}
+
+.tiptap-editor .ProseMirror h2 {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  color: #1e293b; /* slate-800 */
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+  line-height: 1.3;
+}
+
+.tiptap-editor .ProseMirror h3 {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  color: #334155; /* slate-700 */
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 0.8em;
+  margin-bottom: 0.3em;
+  line-height: 1.35;
+}
+
+.tiptap-editor .ProseMirror ul,
+.tiptap-editor .ProseMirror ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.tiptap-editor .ProseMirror ul {
+  list-style-type: disc;
+}
+
+.tiptap-editor .ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.tiptap-editor .ProseMirror li {
+  margin-bottom: 0.25em;
+}
+
+.tiptap-editor .ProseMirror blockquote {
+  border-left: 3px solid rgba(99, 102, 241, 0.3); /* indigo-500/30 */
+  padding-left: 1em;
+  margin-left: 0;
+  color: #64748b; /* slate-500 */
+  font-style: italic;
+  margin-bottom: 0.75em;
+}
+
+.tiptap-editor .ProseMirror code {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5; /* indigo-600 */
+  padding: 0.15em 0.4em;
+  border-radius: 0.25em;
+  font-size: 0.9em;
+  font-family: "Fira Code", "Fira Mono", monospace;
+}
+
+.tiptap-editor .ProseMirror pre {
+  background: #f8fafc;
+  color: #334155;
+  border-radius: 0.75em;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 1em;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+  font-family: "Fira Code", "Fira Mono", monospace;
+  font-size: 0.875em;
+  line-height: 1.6;
+}
+
+.tiptap-editor .ProseMirror pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: 1em;
+}
+
+.tiptap-editor .ProseMirror hr {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 1.5em 0;
+}
+
+.tiptap-editor .ProseMirror mark {
+  background: rgba(253, 224, 71, 0.5);
+  border-radius: 0.15em;
+  padding: 0.05em 0.15em;
+}
+
+.tiptap-editor .ProseMirror strong {
+  color: #0f172a; /* slate-900 */
+}
+
+/* Placeholder */
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: rgba(100, 116, 139, 0.5); /* slate-500/50 */
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* Task List */
+.tiptap-editor .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] p {
+  margin: 0;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5em;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  margin-right: 0.75rem;
+  user-select: none;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+  cursor: pointer;
+  appearance: none;
+  background-color: transparent;
+  margin: 0;
+  font: inherit;
+  color: currentColor;
+  width: 1.15em;
+  height: 1.15em;
+  border: 2px solid #cbd5e1;
+  border-radius: 0.25em;
+  display: grid;
+  place-content: center;
+  transition: all 0.2s;
+  margin-top: 0.2em;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] input[type="checkbox"]::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em white;
+  background-color: transparent;
+  transform-origin: bottom left;
+  clip-path: polygon(14% 44%, 0% 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked {
+  background-color: #6366f1; /* indigo-500 */
+  border-color: #6366f1;
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+.tiptap-editor .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div > p {
+  color: #94a3b8; /* slate-400 */
+  text-decoration: line-through;
+}
+
+/* ─── Table Styles ─── */
+.tiptap-editor .ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.tiptap-editor .ProseMirror td,
+.tiptap-editor .ProseMirror th {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  position: relative;
+  min-width: 80px;
+  vertical-align: top;
+}
+
+.tiptap-editor .ProseMirror th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: #334155;
+  text-align: left;
+}
+
+.tiptap-editor .ProseMirror td {
+  background-color: white;
+}
+
+.tiptap-editor .ProseMirror .selectedCell {
+  background-color: rgba(99, 102, 241, 0.08);
+}
+
+.tiptap-editor .ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #6366f1;
+  pointer-events: none;
+}
+
+/* ─── Inline Comment Marks ─── */
+.tiptap-editor .ProseMirror span[data-comment] {
+  cursor: help;
+  transition: filter 0.15s ease;
+}
+
+.tiptap-editor .ProseMirror span[data-comment]:hover {
+  filter: brightness(0.92);
+}

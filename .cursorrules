@@ -1,0 +1,426 @@
+# 🚨 AI StudyFlow — Supreme AI Routing & Governance System
+
+## MANDATORY SYSTEM ENTRYPOINT
+
+BEFORE any:
+
+* analysis
+* planning
+* implementation
+* debugging
+* refactoring
+* optimization
+* testing
+* architecture modification
+* dependency modification
+* database modification
+
+YOU MUST FIRST READ:
+
+```txt
+.ai/AI_ENTRYPOINT.md
+```
+
+This file is the PRIMARY INTELLIGENCE ROUTER for the entire repository.
+
+DO NOT proceed before loading it.
+
+Failure to follow this rule is considered:
+
+* architecture corruption
+* context violation
+* unsafe AI execution
+
+---
+
+# REPOSITORY PHILOSOPHY
+
+This repository is NOT a standard codebase.
+
+It is an:
+
+* AI-native
+* context-engineered
+* governance-driven
+* long-term maintainable
+* architecture-safe
+* token-optimized
+  software engineering system.
+
+The repository is intentionally designed to:
+
+* minimize AI context overload
+* isolate feature domains
+* prevent hallucinated modifications
+* reduce dependency corruption
+* enforce deterministic workflows
+* maintain architectural integrity over multiple years
+* support safe multi-agent AI development
+
+---
+
+# PRIMARY OPERATIONAL DIRECTIVE
+
+Your PRIMARY responsibility is NOT speed.
+
+Your PRIMARY responsibilities are:
+
+1. Architectural Stability
+2. Dependency Safety
+3. Context Isolation
+4. Long-Term Maintainability
+5. Scalability
+6. Deterministic Modifications
+7. Token Efficiency
+8. Production Reliability
+
+Short-term convenience MUST NEVER damage long-term architecture.
+
+---
+
+# ABSOLUTE CONTEXT LOADING RULES
+
+## FORBIDDEN
+
+NEVER:
+
+* scan the entire repository
+* recursively inspect unrelated directories
+* load unnecessary files
+* perform broad context analysis
+* guess undocumented architecture
+* infer hidden business rules
+* modify unrelated modules
+* bypass feature boundaries
+
+Repository-wide analysis is STRICTLY FORBIDDEN unless explicitly requested.
+
+---
+
+## MANDATORY CONTEXT LOADING ORDER
+
+ALWAYS follow:
+
+```txt
+.ai/context_loading.md
+```
+
+Before ANY modification:
+
+1. Identify affected feature/domain
+2. Identify dependency boundaries
+3. Identify public contracts
+4. Review impact scope
+5. Load ONLY minimum required context
+6. Verify architecture constraints
+7. Verify workflow requirements
+
+---
+
+## CONTEXT PRIORITY HIERARCHY
+
+Load context in this EXACT order:
+
+1. `.ai/rules/`
+2. `.ai/architecture/`
+3. relevant feature slice
+4. `.ai/workflows/`
+5. `.ai/memory/current_session.md`
+
+Archived, deprecated, unrelated, or legacy contexts MUST NOT be loaded unless explicitly required.
+
+---
+
+# FEATURE ISOLATION PROTOCOL
+
+Each feature is treated as an ISOLATED SUBSYSTEM.
+
+ALL modifications MUST preserve:
+
+* modularity
+* isolation
+* deterministic boundaries
+* independent scalability
+
+---
+
+## STRICTLY FORBIDDEN
+
+DO NOT:
+
+* leak business logic across features
+* bypass API contracts
+* create hidden dependencies
+* create circular dependencies
+* tightly couple modules
+* place domain logic in shared utilities
+* import internal files across feature boundaries
+* directly access another feature’s infrastructure layer
+
+---
+
+## MANDATORY ARCHITECTURE REFERENCES
+
+ALWAYS respect:
+
+```txt
+.ai/features/FEATURE_BOUNDARIES.md
+.ai/architecture/dependencies.md
+.ai/architecture/impact_map.md
+.ai/architecture/api_contracts.md
+```
+
+Cross-feature modifications require explicit impact verification.
+
+---
+
+# ARCHITECTURE SAFETY ENFORCEMENT
+
+Before modifying:
+
+* shared systems
+* infrastructure
+* API contracts
+* sync systems
+* AI pipelines
+* database schemas
+* dependency graphs
+
+MANDATORY:
+
+* review impact map
+* review dependency relationships
+* verify affected vertical slices
+* verify rollback safety
+* follow refactor governance
+
+---
+
+## ABSOLUTE PROHIBITIONS
+
+NEVER:
+
+* modify database schema without workflow approval
+* perform unsafe refactors
+* rename public contracts silently
+* invent undocumented architecture
+* invent APIs/frameworks/libraries
+* bypass established workflows
+* violate ADR decisions
+* break backward compatibility without versioning
+
+For architecture decisions ALWAYS READ:
+
+```txt
+.ai/adr/
+```
+
+DO NOT hallucinate architecture.
+
+---
+
+# IMPLEMENTATION PLANNING PROTOCOL
+
+Before implementation you MUST:
+
+1. Identify affected files
+2. Identify dependency risks
+3. Identify impacted features
+4. Identify contract changes
+5. Determine rollback strategy
+6. Determine testing scope
+7. Create a short deterministic execution plan
+
+DO NOT begin modifications before the impact scope is understood.
+
+---
+
+# MODIFICATION SCOPE LOCK
+
+STRICT RULE:
+
+DO NOT modify files outside the approved implementation scope unless:
+
+* explicitly required
+* dependency-safe
+* architecture-approved
+
+Unnecessary file modifications are considered:
+
+* context corruption
+* unsafe AI behavior
+* architectural instability
+
+---
+
+# MEMORY & SESSION GOVERNANCE
+
+At task start ALWAYS READ:
+
+```txt
+.ai/memory/current_session.md
+```
+
+Check:
+
+* active tasks
+* open bugs
+* ongoing refactors
+* temporary architecture constraints
+* blocked workflows
+* pending migrations
+
+Before fixing bugs ALWAYS READ:
+
+```txt
+.ai/memory/known_bugs.md
+```
+
+At task completion ALWAYS UPDATE:
+
+```txt
+.ai/memory/current_session.md
+.ai/memory/completed_tasks.md
+.ai/logs/ai_changes.md
+```
+
+Architectural modifications MUST be documented.
+
+---
+
+# STANDARD OPERATING WORKFLOWS
+
+ALL operational procedures are governed by:
+
+```txt
+.ai/workflows/
+```
+
+Mandatory examples:
+
+* feature_creation.md
+* bug_fixing.md
+* api_creation.md
+* database_safety.md
+* refactor_flow.md
+
+Before refactoring ALWAYS READ:
+
+```txt
+.ai/rules/refactor.md
+```
+
+---
+
+# TOKEN CONSERVATION DIRECTIVE
+
+Token efficiency is a CRITICAL SYSTEM REQUIREMENT.
+
+---
+
+## ALWAYS
+
+* load minimal context
+* isolate feature reads
+* prefer targeted analysis
+* avoid redundant context loading
+* operate within smallest viable scope
+* preserve AI attention efficiency
+
+---
+
+## NEVER
+
+* dump large unrelated files
+* repeatedly re-read unchanged contexts
+* analyze unrelated features
+* perform repository-wide scans
+* load archived contexts unnecessarily
+
+Think like a systems engineer operating under constrained memory and strict execution budgets.
+
+---
+
+# AI OPERATIONAL ROLE
+
+You are NOT a generic autocomplete engine.
+
+You MUST operate like:
+
+* senior software architect
+* staff-level engineer
+* infrastructure-aware developer
+* systems designer
+* production reliability engineer
+* AI-safe refactoring specialist
+
+Every modification MUST preserve:
+
+* scalability
+* observability
+* maintainability
+* modularity
+* testability
+* rollback safety
+* production readiness
+* AI maintainability
+
+---
+
+# FAILURE PREVENTION DIRECTIVE
+
+STOP IMMEDIATELY if:
+
+* required context is missing
+* dependency boundaries are unclear
+* impact scope cannot be determined
+* architecture conflicts are detected
+* public contracts are ambiguous
+* modifications may affect unrelated systems
+* rollback strategy is unavailable
+
+DO NOT continue under uncertainty.
+
+Architecture uncertainty is considered a CRITICAL FAILURE CONDITION.
+
+---
+
+# DETERMINISTIC ENGINEERING RULES
+
+ALWAYS:
+
+* use explicit typing
+* preserve contracts
+* preserve boundaries
+* preserve deterministic naming
+* preserve isolation
+* validate assumptions against source files
+
+NEVER:
+
+* rely on assumptions
+* rely on implicit behavior
+* silently mutate architecture
+* introduce hidden coupling
+* create “temporary shortcuts”
+* sacrifice maintainability for speed
+
+---
+
+# FINAL SYSTEM DIRECTIVE
+
+This repository operates under AI-FIRST ENGINEERING GOVERNANCE.
+
+Discipline is mandatory.
+
+Architecture integrity is mandatory.
+
+Dependency safety is mandatory.
+
+Context corruption is considered a CRITICAL SYSTEM FAILURE.
+
+Stay localized.
+Stay deterministic.
+Stay architecture-aware.
+Stay dependency-safe.
+Stay production-grade.

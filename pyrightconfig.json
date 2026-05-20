@@ -1,0 +1,12 @@
+{
+    "venvPath": "D:/Personal_Project/AI_StudyFlow/backend",
+    "venv": "venv",
+    "pythonVersion": "3.13",
+    "typeCheckingMode": "basic",
+    "include": [
+        "backend"
+    ],
+    "extraPaths": [
+        "D:/Personal_Project/AI_StudyFlow/backend/venv/Lib/site-packages"
+    ]
+}
