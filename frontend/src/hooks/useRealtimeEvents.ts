@@ -21,7 +21,7 @@
 import { useEffect, useRef } from 'react';
 import { useNoteStore } from '@/store/useNoteStore';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
 const SSE_PATH = `${API_BASE}/realtime/stream`;
 const TOKEN_KEY = 'studyflow_access_token';
 

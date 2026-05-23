@@ -5,14 +5,14 @@ import { useTaskStore } from '@/store/useTaskStore';
 import { useAppStore } from '@/store/useAppStore';
 import { BacklogSidebar } from '@/components/features/planner/BacklogSidebar';
 import { CalendarGrid } from '@/components/features/planner/CalendarGrid';
-import { TaskModal } from '@/components/features/planner/TaskModal';
+import TaskModal from '@/components/features/tasks/TaskModal';
 import { RolloverPopup } from '@/components/features/planner/RolloverPopup';
 import { TaskQuickPanel } from '@/components/features/planner/TaskQuickPanel';
 import { TiptapEditor } from '@/components/features/notes/TiptapEditor';
 import { Loader2, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 
 export default function PlannerPage() {
-  const { tasks, isLoading, fetchTasks, moveTask } = useTaskStore();
+  const { tasks, isLoading, fetchTasks, moveTask, createTask } = useTaskStore();
   const { isSplitViewOpen, splitViewTaskId, splitViewNoteId } = useAppStore();
 
   const [modalTimes, setModalTimes] = useState<{start: Date, end: Date} | null>(null);
@@ -157,9 +157,11 @@ export default function PlannerPage() {
 
       {modalTimes && (
         <TaskModal 
+          isOpen={!!modalTimes}
           initialStart={modalTimes.start} 
           initialEnd={modalTimes.end} 
           onClose={() => setModalTimes(null)} 
+          onSubmit={createTask}
         />
       )}
 

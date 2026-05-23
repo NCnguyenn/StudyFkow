@@ -45,7 +45,7 @@ const pendingNoteUpdates: Record<string, { id: string; updates: Record<string, u
 const getStoredToken = (): string | null =>
   typeof window !== 'undefined' ? localStorage.getItem('studyflow_access_token') : null;
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api/v1';
 
 // P2: Register a single beforeunload handler at module initialization time.
 // It runs once when the module is first imported (client-side only).
@@ -182,6 +182,20 @@ export const useNoteStore = create<NoteState>((set, get) => ({
       data.notes.forEach(note => {
         notesDict[note.id] = note;
       });
+
+      // Recover unsynced notes
+      try {
+        const stored = JSON.parse(localStorage.getItem('studyflow_unsynced_notes') ?? '{}');
+        for (const noteId in stored) {
+          const updates = stored[noteId]?.updates;
+          if (updates && notesDict[noteId]) {
+            notesDict[noteId] = { ...notesDict[noteId], ...updates };
+            get().syncNoteToServer(noteId, updates);
+          }
+        }
+      } catch {
+        // Ignore JSON parse errors
+      }
 
       set({ folders: data.folders, notes: notesDict, isLoading: false });
     } catch (err: any) {

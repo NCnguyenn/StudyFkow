@@ -3,7 +3,7 @@ import { useTaskStore } from '@/store/useTaskStore';
 import { useNoteStore } from '@/store/useNoteStore';
 import { useAppStore } from '@/store/useAppStore';
 import { X, CheckCircle2, Circle, Pencil, Trash2, FileText, Plus, Loader2 } from 'lucide-react';
-import { TaskModal } from './TaskModal';
+import TaskModal from '@/components/features/tasks/TaskModal';
 
 interface TaskQuickPanelProps {
   taskId: string;
@@ -147,7 +147,7 @@ export const TaskQuickPanel: React.FC<TaskQuickPanelProps> = ({ taskId }) => {
       </div>
 
       {isEditing && (
-        <TaskModal editTask={task} onClose={() => setIsEditing(false)} />
+        <TaskModal isOpen={isEditing} editTask={task} onClose={() => setIsEditing(false)} onSubmit={async (updated) => { await updateTask(task.id, updated); }} />
       )}
     </div>
   );

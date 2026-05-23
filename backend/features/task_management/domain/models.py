@@ -61,6 +61,7 @@ class TaskBase(BaseModel):
     status: str = Field(default="PENDING")
     task_status: Literal['PENDING', 'IN_PROGRESS', 'USING_OVERTIME', 'FAILED', 'COMPLETED'] = 'PENDING'
     failed_reason: Optional[str] = None
+    linked_note_id: Optional[UUID] = None
 
     @field_validator('planned_end')
     @classmethod
@@ -82,7 +83,7 @@ class TaskUpdate(BaseModel):
     recurrence_rule: Optional[str] = None
     overtime_buffer_minutes: Optional[int] = None
     failed_reason: Optional[str] = None
-    task_status: Optional[Literal['PENDING', 'IN_PROGRESS', 'USING_OVERTIME', 'FAILED', 'COMPLETED']] = None
+    linked_note_id: Optional[UUID] = None
     color_code: Optional[str] = Field(None, pattern=r'^#[0-9a-fA-F]{6}$')
     planned_start: Optional[datetime] = None
     planned_end: Optional[datetime] = None

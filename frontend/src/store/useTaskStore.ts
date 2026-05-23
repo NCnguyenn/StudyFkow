@@ -2,6 +2,26 @@ import { create } from 'zustand';
 import { TaskResponseData } from '../types/planner';
 import { fetchWithAuth } from '../lib/api-utils';
 
+// --- STUB: IndexedDB Offline Sync Logic ---
+const saveTasksOffline = async (tasks: TaskResponseData[]) => {
+  try {
+    localStorage.setItem('studyflow_offline_tasks', JSON.stringify(tasks));
+  } catch (err) {
+    console.error('Failed to save offline tasks', err);
+  }
+};
+
+const loadTasksOffline = async (): Promise<TaskResponseData[]> => {
+  try {
+    const data = localStorage.getItem('studyflow_offline_tasks');
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    console.error('Failed to load offline tasks', err);
+    return [];
+  }
+};
+// ------------------------------------------
+
 interface TaskState {
   tasks: TaskResponseData[];
   isLoading: boolean;
@@ -32,11 +52,13 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         throw new Error(`API Error ${response.status}: ${errText}`);
       }
       const data = (await response.json()) as TaskResponseData[];
+      await saveTasksOffline(data);
       console.log(`[TaskStore] Fetched ${data.length} tasks successfully.`);
       set({ tasks: data, isLoading: false });
     } catch (err: any) {
-      console.error('[TaskStore] fetchTasks error:', err);
-      set({ error: err.message || 'Error fetching tasks', isLoading: false });
+      console.error('[TaskStore] fetchTasks error, falling back to offline data:', err);
+      const offlineTasks = await loadTasksOffline();
+      set({ tasks: offlineTasks, error: err.message || 'Network error: Loaded offline tasks', isLoading: false });
     }
   },
 

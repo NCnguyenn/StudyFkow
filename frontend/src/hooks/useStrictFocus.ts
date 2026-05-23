@@ -9,11 +9,11 @@ export const useStrictFocus = () => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
         // User left the tab
-        if (useFocusStore.getState().phase === 'FOCUSING') {
+        if (useFocusStore.getState().phase === 'FOCUSING' || useFocusStore.getState().phase === 'WARNING') {
           // Start 10-second penalty countdown
           timeoutRef.current = setTimeout(() => {
-            // Trigger warning (stops timer, pauses music, turns red)
-            useFocusStore.getState().setPhase('WARNING');
+            // Trigger abandoned (stops timer, pauses music, turns red)
+            useFocusStore.getState().setPhase('ABANDONED');
           }, 10000);
         }
       } else {

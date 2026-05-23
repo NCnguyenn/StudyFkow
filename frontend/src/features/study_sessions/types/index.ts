@@ -52,6 +52,7 @@ export type BackendSessionStatus =
 export interface SessionStartRequest {
   client_session_id: string;
   title: string;
+  task_id?: string;
   topic_ids?: string[];
   notes?: string;
 }

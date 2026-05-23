@@ -148,6 +148,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
 
   const [syncState, setSyncState] = useState<SyncState>('SAVED');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Floating MagicGloss vocabulary card state
   const [activeGlossary, setActiveGlossary] = useState<FloatingGlossary | null>(null);
@@ -240,10 +241,13 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
       onUpdate: ({ editor: ed }) => {
         const json = ed.getJSON();
         setSyncState('SAVING');
-        updateLocalNote(noteId, { content_json: json });
-        syncNoteToServer(noteId, { content_json: json });
-        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-        saveTimeoutRef.current = setTimeout(() => setSyncState('SAVED'), 1500);
+        
+        if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = setTimeout(() => {
+          updateLocalNote(noteId, { content_json: json });
+          syncNoteToServer(noteId, { content_json: json });
+          setSyncState('SAVED');
+        }, 1000);
       },
     },
     [noteId],
@@ -251,7 +255,10 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
 
   // Cleanup debounce timer on unmount
   useEffect(() => {
-    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
+    return () => { 
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); 
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
   }, []);
 
   // Content sync when active note changes (preserved)
@@ -260,7 +267,7 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
     const currentContent = note?.content_json;
     queueMicrotask(() => {
       if (!editor || editor.isDestroyed) return;
-      editor.commands.setContent(getSafeContent(currentContent));
+      editor.commands.setContent(getSafeContent(currentContent), false);
     });
   }, [note?.id, editor]);
 

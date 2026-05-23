@@ -25,7 +25,7 @@ router = APIRouter(prefix="/notes", tags=["Notes"])
 # ---------------------------------------------------------------------------
 _MAX_IMAGE_SIZE_BYTES: int = 5 * 1024 * 1024  # 5 MB
 _ALLOWED_IMAGE_EXTENSIONS: frozenset[str] = frozenset(
-    {".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp"}
+    {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 )
 _UPLOAD_DIR: Path = Path("static_cdn/note_images")
 _PUBLIC_STATIC_PREFIX: str = "/static/note_images"

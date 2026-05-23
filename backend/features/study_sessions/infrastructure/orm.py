@@ -32,6 +32,7 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
     text,
+    ARRAY,
 )
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -63,6 +64,8 @@ class SessionModel(Base):
         nullable=True,
     )
     title: Mapped[str] = mapped_column(String(255))
+    notes: Mapped[str | None] = mapped_column(String(5000), nullable=True)
+    topic_ids: Mapped[list[uuid.UUID] | None] = mapped_column(ARRAY(UUID(as_uuid=True)), nullable=True)
     status: Mapped[str] = mapped_column(String(50))
     duration_seconds: Mapped[int] = mapped_column(Integer, server_default="0")
     last_seen_at: Mapped[datetime] = mapped_column(

@@ -68,9 +68,7 @@ export const DeepFocusWorkspace = () => {
 
   const studySession = useStudySession();
   // Track previous phase to detect transitions without stale closures
-  const prevPhaseRef = useRef(phase);
-  // Guard against firing backend calls on the very first mount
-  const isInitialMount = useRef(true);
+  const prevPhaseRef = useRef<any>(undefined);
 
   useStrictFocus();
 
@@ -79,31 +77,25 @@ export const DeepFocusWorkspace = () => {
   // Map FocusStore phase transitions → useStudySession actions
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      prevPhaseRef.current = phase;
-      return;
-    }
-
     const prev = prevPhaseRef.current;
     prevPhaseRef.current = phase;
 
-    if (prev === phase) return;
+    if (prev === phase && prev !== undefined) return;
 
-    // SETUP → FOCUSING: user clicked "Start" — begin backend session
-    if (prev === 'SETUP' && phase === 'FOCUSING') {
-      studySession.start(preset.name);
+    // SETUP/undefined → FOCUSING: user clicked "Start" — begin backend session
+    if ((prev === 'SETUP' || prev === undefined) && phase === 'FOCUSING') {
+      studySession.start(preset.name, useFocusStore.getState().linkedTaskId);
     }
 
-    // FOCUSING → WARNING: tab abandonment detected by useStrictFocus
+    // FOCUSING/WARNING → ABANDONED: tab abandonment detected by useStrictFocus
     // Pause the backend session to halt authoritative timer
-    if (prev === 'FOCUSING' && phase === 'WARNING') {
+    if ((prev === 'FOCUSING' || prev === 'WARNING') && phase === 'ABANDONED') {
       studySession.pause();
     }
 
-    // WARNING → FOCUSING: user clicked Resume in controls
+    // ABANDONED → FOCUSING/WARNING: user clicked Resume in controls
     // Resume the backend session
-    if (prev === 'WARNING' && phase === 'FOCUSING') {
+    if (prev === 'ABANDONED' && (phase === 'FOCUSING' || phase === 'WARNING')) {
       studySession.resume();
     }
 
@@ -129,7 +121,7 @@ export const DeepFocusWorkspace = () => {
   // ---------------------------------------------------------------------------
   useEffect(() => {
     if (isPaused || phase === 'SETUP' || phase === 'COMPLETED') return;
-    if (phase === 'WARNING') return; // WARNING halts timer until user resumes
+    if (phase === 'ABANDONED') return; // ABANDONED halts timer until user resumes
 
     const intervalId = setInterval(() => {
       tick();
@@ -168,9 +160,9 @@ export const DeepFocusWorkspace = () => {
       {/* Minimalistic Floating Controls */}
       <div className="fixed bottom-10 flex items-center gap-3 glass-card px-5 py-2.5 rounded-full">
         
-        {phase === 'WARNING' ? (
+        {phase === 'ABANDONED' ? (
           <button 
-            onClick={() => setPhase('FOCUSING')}
+            onClick={() => setPhase(useFocusStore.getState().timeLeft <= 60 ? 'WARNING' : 'FOCUSING')}
             className="p-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-full transition-colors flex items-center gap-2"
           >
             <Play className="w-5 h-5 fill-current" />

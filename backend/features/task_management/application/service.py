@@ -122,6 +122,18 @@ class TaskService:
         if new_status == 'FAILED' and failed_reason:
             update_data["failed_reason"] = failed_reason
             
+        if new_status == 'IN_PROGRESS' and not task.linked_note_id:
+            from backend.features.notes.application.service import create_note
+            from backend.features.notes.domain.schemas import NoteCreate
+            note_data = NoteCreate(
+                title=f"Notes for {task.title}",
+                content_json={"type": "doc", "content": [{"type": "paragraph"}]},
+                task_id=task.id,
+                subject_id=task.subject_id
+            )
+            note = await create_note(self.repository.session, user_id, note_data)
+            update_data["linked_note_id"] = note.id
+            
         updated_task = await self.repository.update_task(task, update_data)
         return TaskRead.model_validate(updated_task)
 

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type FocusPhase = 'SETUP' | 'FOCUSING' | 'WARNING' | 'BREAK' | 'COMPLETED';
+export type FocusPhase = 'SETUP' | 'FOCUSING' | 'WARNING' | 'ABANDONED' | 'BREAK' | 'COMPLETED';
 
 interface FocusPreset {
   name: string;

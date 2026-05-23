@@ -118,8 +118,21 @@ interface CalendarGridProps {
 
 export const CalendarGrid: React.FC<CalendarGridProps> = ({ baseDate, onTaskMove, onEmptySlotClick, onTaskFailed }) => {
   const tasks = useTaskStore(useShallow(state => state.tasks));
-  const weekDays = getWeekDays(baseDate);
+  const weekDays = React.useMemo(() => getWeekDays(baseDate), [baseDate]);
   const [nowTop, setNowTop] = useState(0);
+
+  const layoutItemsByDay = React.useMemo(() => {
+    const map = new Map<string, OverlapLayoutItem[]>();
+    for (const day of weekDays) {
+      const yyyy = day.getFullYear();
+      const mm = String(day.getMonth() + 1).padStart(2, '0');
+      const dd = String(day.getDate()).padStart(2, '0');
+      const dayStr = `${yyyy}-${mm}-${dd}`;
+      const dayTasks = tasks.filter(t => t.planned_start.startsWith(dayStr));
+      map.set(dayStr, computeOverlapLayout(dayTasks));
+    }
+    return map;
+  }, [tasks, weekDays]);
 
   useEffect(() => {
     const updateNowLine = () => {
@@ -217,10 +230,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ baseDate, onTaskMove
                 const dd = String(day.getDate()).padStart(2, '0');
                 const dayStr = `${yyyy}-${mm}-${dd}`;
 
-                const dayTasks = tasks.filter(t => t.planned_start.startsWith(dayStr));
-
-                // P2: Compute overlap layout for this day's tasks
-                const layoutItems = computeOverlapLayout(dayTasks);
+                const layoutItems = layoutItemsByDay.get(dayStr) || [];
 
                 return (
                   <DayColumn key={colIndex} dayStr={dayStr} isToday={isToday(day)} nowTop={nowTop} onSlotClick={handleSlotClick}>

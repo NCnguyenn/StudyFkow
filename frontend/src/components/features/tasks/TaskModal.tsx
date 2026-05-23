@@ -50,7 +50,7 @@ export interface TaskEditData {
   overtimeMinutes?: number;
   recurrence?: RecurrencePattern;
   recurrenceDays?: number[];
-  subTasks?: SubTask[];
+  subtasks?: SubTask[];
   linkedNoteId?: string | null;
 }
 
@@ -75,7 +75,7 @@ export interface TaskFormData {
   overtimeMinutes?: number;
   recurrence?: RecurrencePattern;
   recurrenceDays?: number[];
-  subTasks?: SubTask[];
+  subtasks?: SubTask[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -143,7 +143,7 @@ export default function TaskModal({
   const [overtimeMinutes, setOvertimeMinutes] = useState(15);
   const [recurrence, setRecurrence] = useState<RecurrencePattern>("NONE");
   const [recurrenceDays, setRecurrenceDays] = useState<number[]>([]);
-  const [subTasks, setSubTasks] = useState<SubTask[]>([]);
+  const [subtasks, setSubtasks] = useState<SubTask[]>([]);
   const [enableReview, setEnableReview] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -189,13 +189,13 @@ export default function TaskModal({
       setOvertimeMinutes(editTask.overtimeMinutes ?? 15);
       setRecurrence(editTask.recurrence ?? "NONE");
       setRecurrenceDays(editTask.recurrenceDays ?? []);
-      setSubTasks(editTask.subTasks ?? []);
+      setSubtasks(editTask.subtasks ?? []);
       if (editTask.overtimeMinutes || editTask.recurrence !== "NONE") setShowAdvanced(true);
     } else {
       setTitle(""); setDescription(""); setPriority(2);
       setSelectedColor(TASK_COLORS[0].hex); setSelectedSubjectId("");
       setOvertimeMinutes(15); setRecurrence("NONE"); setRecurrenceDays([]);
-      setSubTasks([]); 
+      setSubtasks([]); 
       if (initialStart) setPlannedStart(toLocalDatetimeString(initialStart));
       if (initialEnd) setPlannedEnd(toLocalDatetimeString(initialEnd));
     }
@@ -212,19 +212,19 @@ export default function TaskModal({
 
   // SubTask CRUD
   const addSubTask = () => {
-    setSubTasks((prev) => [...prev, {
+    setSubtasks((prev) => [...prev, {
       id: `st-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
       title: "", is_completed: false, sortOrder: prev.length,
     }]);
   };
   const toggleSubTask = (id: string) => {
-    setSubTasks((prev) => prev.map((s) => s.id === id ? { ...s, is_completed: !s.is_completed } : s));
+    setSubtasks((prev) => prev.map((s) => s.id === id ? { ...s, is_completed: !s.is_completed } : s));
   };
   const deleteSubTask = (id: string) => {
-    setSubTasks((prev) => prev.filter((s) => s.id !== id));
+    setSubtasks((prev) => prev.filter((s) => s.id !== id));
   };
   const renameSubTask = (id: string, title: string) => {
-    setSubTasks((prev) => prev.map((s) => s.id === id ? { ...s, title } : s));
+    setSubtasks((prev) => prev.map((s) => s.id === id ? { ...s, title } : s));
   };
 
   const toggleRecurrenceDay = (day: number) => {
@@ -248,7 +248,7 @@ export default function TaskModal({
         planned_start: s.toISOString(), planned_end: en.toISOString(),
         subjectId: selectedSubjectId || undefined,
         overtimeMinutes, recurrence, recurrenceDays,
-        subTasks: subTasks.filter((st) => st.title.trim()),
+        subtasks: subtasks.filter((st) => st.title.trim()),
       });
       onClose();
     } catch (err) {
@@ -272,7 +272,7 @@ export default function TaskModal({
 
   const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  const completedCount = subTasks.filter((s) => s.is_completed).length;
+  const completedCount = subtasks.filter((s) => s.is_completed).length;
 
   return (
     <div ref={overlayRef} className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -406,9 +406,9 @@ export default function TaskModal({
             <div className="flex items-center justify-between mb-2">
               <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
                 <Check className="w-3.5 h-3.5" /> Todos
-                {subTasks.length > 0 && (
+                {subtasks.length > 0 && (
                   <span className="text-[10px] text-slate-400 font-normal">
-                    {completedCount}/{subTasks.length}
+                    {completedCount}/{subtasks.length}
                   </span>
                 )}
               </label>
@@ -417,9 +417,9 @@ export default function TaskModal({
                 <Plus className="w-3 h-3" /> Add
               </button>
             </div>
-            {subTasks.length > 0 && (
+            {subtasks.length > 0 && (
               <div className="space-y-1.5 p-2.5 rounded-xl bg-white/20 border border-white/30">
-                {subTasks.map((st) => (
+                {subtasks.map((st) => (
                   <SubTaskItem key={st.id} subTask={st}
                     onToggle={() => toggleSubTask(st.id)}
                     onDelete={() => deleteSubTask(st.id)}

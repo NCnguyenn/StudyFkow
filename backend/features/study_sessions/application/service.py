@@ -109,6 +109,8 @@ async def start_session(
         user_id=user_id,
         task_id=request.task_id,
         title=request.title,
+        notes=request.notes,
+        topic_ids=request.topic_ids,
         status=SessionStatus.PENDING.value,
         duration_seconds=0,
         last_seen_at=now,
@@ -163,7 +165,7 @@ async def process_heartbeat(
     if session.status == SessionStatus.ACTIVE.value:
         last_seen = session.last_seen_at.replace(tzinfo=timezone.utc) \
             if session.last_seen_at.tzinfo is None else session.last_seen_at
-        delta = max(0, int((now - last_seen).total_seconds()))
+        delta = max(0, round((now - last_seen).total_seconds()))
 
     # Persist heartbeat timestamp
     if session.status == SessionStatus.PENDING.value:
@@ -240,7 +242,7 @@ async def pause_session(
 
     last_seen = session.last_seen_at.replace(tzinfo=timezone.utc) \
         if session.last_seen_at.tzinfo is None else session.last_seen_at
-    delta = max(0, int((now - last_seen).total_seconds()))
+    delta = max(0, round((now - last_seen).total_seconds()))
 
     # 1. Insert pause record (created_at = paused_at)
     await repo.record_pause(session_id=session_id, db=db)
@@ -324,7 +326,7 @@ async def resume_session(
     if open_pause is not None:
         delta = now - open_pause.created_at.replace(tzinfo=timezone.utc) \
             if open_pause.created_at.tzinfo is None else now - open_pause.created_at
-        this_pause_seconds = max(0, int(delta.total_seconds()))
+        this_pause_seconds = max(0, round(delta.total_seconds()))
 
     # 1. Close the open pause record with calculated duration
     if open_pause is not None:
@@ -414,7 +416,7 @@ async def end_session(
         if open_pause is not None:
             created_at_aware = open_pause.created_at.replace(tzinfo=timezone.utc) \
                 if open_pause.created_at.tzinfo is None else open_pause.created_at
-            pause_delta = max(0, int((now - created_at_aware).total_seconds()))
+            pause_delta = max(0, round((now - created_at_aware).total_seconds()))
             await repo.record_resume(
                 pause_id=open_pause.id,
                 duration_seconds=pause_delta,
@@ -433,7 +435,7 @@ async def end_session(
     if session.status == SessionStatus.ACTIVE.value:
         last_seen = session.last_seen_at.replace(tzinfo=timezone.utc) \
             if session.last_seen_at.tzinfo is None else session.last_seen_at
-        delta = max(0, int((now - last_seen).total_seconds()))
+        delta = max(0, round((now - last_seen).total_seconds()))
 
     actual_duration = session.duration_seconds + delta
 

@@ -40,8 +40,8 @@ logger = logging.getLogger(__name__)
 # Thresholds (from session_state_machine.md)
 # ---------------------------------------------------------------------------
 
-# ACTIVE sessions with no heartbeat for > 90 seconds → stale
-ACTIVE_STALE_THRESHOLD = timedelta(seconds=90)
+# ACTIVE sessions with no heartbeat for > 12 hours → stale
+ACTIVE_STALE_THRESHOLD = timedelta(hours=12)
 
 # PAUSED sessions abandoned for > 30 minutes → stale
 PAUSED_STALE_THRESHOLD = timedelta(minutes=30)
@@ -159,7 +159,7 @@ async def _interrupt_session(session: SessionModel, db: AsyncSession) -> None:
         pause_created = _ensure_aware(open_pause.created_at)
         # Duration up to last_seen_at (not now), because the client
         # was last confirmed alive at that point.
-        pause_duration = max(0, int((last_seen - pause_created).total_seconds()))
+        pause_duration = max(0, round((last_seen - pause_created).total_seconds()))
         await db.execute(
             update(SessionPauseModel)
             .where(SessionPauseModel.id == open_pause.id)
@@ -176,7 +176,7 @@ async def _interrupt_session(session: SessionModel, db: AsyncSession) -> None:
     total_paused_seconds: int = total_paused_result.scalar() or 0
 
     # Step 3: Calculate actual duration
-    wall_clock = int((last_seen - created_at).total_seconds())
+    wall_clock = round((last_seen - created_at).total_seconds())
     actual_duration = max(0, wall_clock - total_paused_seconds)
 
     # Step 4: Mark INTERRUPTED

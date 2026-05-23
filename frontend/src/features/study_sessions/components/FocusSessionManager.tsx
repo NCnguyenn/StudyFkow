@@ -24,6 +24,8 @@ import {
 import localforage from "localforage";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { useAppStore } from "@/store/useAppStore";
+import { useFocusStore } from "@/store/useFocusStore";
+import { useNoteStore } from "@/store/useNoteStore";
 import { useStudySession } from "../hooks/useStudySession";
 
 // ─── Pomodoro Presets ──────────────────────────────────────────────
@@ -144,6 +146,13 @@ function QuickNotePanel({ taskTitle }: { taskTitle?: string }) {
   useEffect(() => { const s = localStorage.getItem("sf_quick_note"); if (s) setText(s); }, []);
   useEffect(() => { localStorage.setItem("sf_quick_note", text); }, [text]);
 
+  // Listen for auto-clear from session manager
+  useEffect(() => {
+    const handleClear = () => setText("");
+    window.addEventListener("quick_note_cleared", handleClear);
+    return () => window.removeEventListener("quick_note_cleared", handleClear);
+  }, []);
+
   if (collapsed) return (
     <button onClick={() => setCollapsed(false)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/20 backdrop-blur border border-white/30 text-slate-500 hover:bg-white/40 text-xs font-semibold transition-all">
       <StickyNote className="w-3.5 h-3.5" />Quick Note
@@ -231,8 +240,36 @@ export function FocusSessionManager({ linkedTaskTitle }: { linkedTaskTitle?: str
     setShowSetup(false);
     setPomoSec(0);
     setPomoPhase("focus");
-    await s.start(linkedTaskTitle ?? "Focus Session");
+    await s.start(linkedTaskTitle ?? "Focus Session", useFocusStore.getState().linkedTaskId);
   };
+
+  // Auto-create Note from Quick Note on session end
+  useEffect(() => {
+    if (s.state === "SUMMARY") {
+      const qn = localStorage.getItem("sf_quick_note");
+      if (qn && qn.trim() !== "") {
+        const taskId = useFocusStore.getState().linkedTaskId;
+        useNoteStore.getState().createNote(
+          null,
+          `Quick Note - ${linkedTaskTitle || 'Focus Session'}`,
+          taskId
+        ).then((id) => {
+          if (id) {
+            const content = {
+              type: "doc",
+              content: [{ type: "paragraph", content: [{ type: "text", text: qn }] }]
+            };
+            useNoteStore.getState().updateLocalNote(id, { content_json: content });
+            useNoteStore.getState().syncNoteToServer(id, { content_json: content });
+            localStorage.removeItem("sf_quick_note");
+            
+            // Dispatch a custom event to update QuickNotePanel if it's still mounted
+            window.dispatchEvent(new Event("quick_note_cleared"));
+          }
+        });
+      }
+    }
+  }, [s.state, linkedTaskTitle]);
 
   // ─── IDLE / ERROR: Show Setup Modal ──────────────────────────────
   if (s.state === "IDLE" || s.state === "ERROR" || s.state === "REQUESTING") {

@@ -192,17 +192,27 @@ async def update_note(db: AsyncSession, user_id: UUID, note_id: UUID, note_data:
 # ---------------------------------------------------------------------------
 
 def _parse_wikilinks(content_json: dict) -> list[str]:
-    """Extract unique note titles from [[Title]] syntax in serialized content."""
-    raw = json.dumps(content_json)
-    matches = _WIKILINK_RE.findall(raw)
-    # Deduplicate while preserving order
+    """Extract unique note titles from bidirectionalLink AST nodes."""
     seen: set[str] = set()
     result: list[str] = []
-    for title in matches:
-        t = title.strip()
-        if t and t not in seen:
-            seen.add(t)
-            result.append(t)
+
+    def traverse(node):
+        if not isinstance(node, dict):
+            return
+        if node.get("type") == "bidirectionalLink":
+            title = node.get("attrs", {}).get("title")
+            if title and isinstance(title, str):
+                t = title.strip()
+                if t and t not in seen:
+                    seen.add(t)
+                    result.append(t)
+        
+        content = node.get("content")
+        if isinstance(content, list):
+            for child in content:
+                traverse(child)
+
+    traverse(content_json)
     return result
 
 

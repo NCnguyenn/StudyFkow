@@ -74,7 +74,7 @@ export interface UseStudySessionReturn {
   heartbeatFailed: boolean;
 
   /** Start a new focus session. */
-  start: (title: string) => Promise<void>;
+  start: (title: string, taskId?: string | null) => Promise<void>;
 
   /** Pause the active session. */
   pause: () => Promise<void>;
@@ -347,7 +347,7 @@ export function useStudySession(): UseStudySessionReturn {
   // -------------------------------------------------------------------
 
   const start = useCallback(
-    async (title: string) => {
+    async (title: string, taskId?: string | null) => {
       if (state !== "IDLE" && state !== "ERROR") return;
 
       setErrorMessage(null);
@@ -359,6 +359,7 @@ export function useStudySession(): UseStudySessionReturn {
         const { data } = await apiStartSession({
           client_session_id: clientSessionId,
           title,
+          ...(taskId ? { task_id: taskId } : {})
         });
 
         setSession(data);
@@ -394,10 +395,7 @@ export function useStudySession(): UseStudySessionReturn {
   const pause = useCallback(async () => {
     if (state !== "ACTIVE" || !session) return;
 
-    try {
-      const res = await apiPauseSession(session.id);
-
-      // Freeze timer
+    const doLocalPause = () => {
       const nowMs = Date.now();
       const runningSeconds = Math.floor((nowMs - startedAtRef.current) / 1000);
       activeElapsedRef.current = activeElapsedRef.current + Math.max(0, runningSeconds);
@@ -408,10 +406,19 @@ export function useStudySession(): UseStudySessionReturn {
       setSession(updated);
       persistSession(updated, null, totalPausedSecondsRef.current);
       setState("PAUSED");
+    };
+
+    try {
+      const res = await apiPauseSession(session.id);
+      doLocalPause();
     } catch (err) {
-      setErrorMessage(
-        err instanceof Error ? err.message : "Failed to pause session.",
-      );
+      if (!navigator.onLine || (err instanceof TypeError && err.message.toLowerCase().includes('fetch'))) {
+        doLocalPause();
+      } else {
+        setErrorMessage(
+          err instanceof Error ? err.message : "Failed to pause session.",
+        );
+      }
     }
   }, [state, session, stopDisplayTimer, stopHeartbeat]);
 

@@ -34,9 +34,11 @@ export const MagicGloss = Mark.create<MagicGlossOptions>({
           if (!attributes.color) {
             return {};
           }
+          const isValidHex = /^#([0-9A-F]{3}){1,2}$/i.test(attributes.color);
+          const safeColor = isValidHex ? attributes.color : '#fef08a';
           return {
-            'data-color': attributes.color,
-            style: `background-color: ${attributes.color}; color: inherit`,
+            'data-color': safeColor,
+            style: `background-color: ${safeColor}; color: inherit`,
           };
         },
       },

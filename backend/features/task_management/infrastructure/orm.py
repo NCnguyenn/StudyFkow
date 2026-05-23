@@ -65,6 +65,7 @@ class TaskModel(Base):
     overtime_buffer_minutes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     failed_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     task_status: Mapped[str] = mapped_column(String(20), nullable=False, default="PENDING")
+    linked_note_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), nullable=True)
     
     color_code: Mapped[Optional[str]] = mapped_column(String(7), nullable=True)
     
