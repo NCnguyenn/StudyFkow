@@ -36,7 +36,7 @@ def archive_md_files(root_dir, output_zip):
     print(f"\nSuccessfully archived {count} files to {output_zip}")
 
 if __name__ == "__main__":
-    PROJECT_ROOT = os.getcwd()
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     OUTPUT_FILE = r"D:\md.zip"
     
     try:

@@ -260,34 +260,113 @@ async def _rebuild_note_links(
 
 async def get_knowledge_graph(db: AsyncSession, user_id: UUID) -> dict:
     """
-    Build a force-directed graph payload for the user's knowledge network.
-    Returns {nodes: [{id, name, val}], links: [{source, target}]}.
+    Build a multi-layer force-directed graph payload.
+    Returns {nodes: [{id, name, val, group, color}], links: [{source, target}]}.
+
+    Node groups:
+      'subject' — hubs (val 20), colored by subject.color
+      'task'    — secondary nodes (val 10)
+      'note'    — leaf nodes (val 5)
+
+    Architecture note: TaskModel and SubjectModel are imported from the
+    task_management infrastructure layer (read-only). This avoids circular
+    imports because we never import from their domain/application layers.
     """
-    # Nodes: all user notes (lightweight)
+    # Lazy cross-slice import — infrastructure read only, no circular risk
+    from backend.features.task_management.infrastructure.orm import (
+        SubjectModel,
+        TaskModel,
+    )
+
+    # ── 1. Fetch all three entity sets in parallel-style sequential queries ──
+
+    subjects_res = await db.execute(
+        select(SubjectModel.id, SubjectModel.title, SubjectModel.color)
+        .where(SubjectModel.user_id == user_id)
+    )
+    subject_rows = subjects_res.all()
+    subject_id_set = {row.id for row in subject_rows}
+
+    tasks_res = await db.execute(
+        select(TaskModel.id, TaskModel.title, TaskModel.subject_id)
+        .where(TaskModel.user_id == user_id, TaskModel.is_deleted == False)  # noqa: E712
+    )
+    task_rows = tasks_res.all()
+    task_id_set = {row.id for row in task_rows}
+
     notes_res = await db.execute(
-        select(NoteModel.id, NoteModel.title)
+        select(NoteModel.id, NoteModel.title, NoteModel.task_id, NoteModel.subject_id)
         .where(NoteModel.user_id == user_id)
     )
-    notes_rows = notes_res.all()
-    note_ids = {row.id for row in notes_rows}
+    note_rows = notes_res.all()
+    note_id_set = {row.id for row in note_rows}
 
-    nodes = [
-        {"id": str(row.id), "name": str(row.title or "Untitled"), "val": 1}
-        for row in notes_rows
+    # ── 2. Build nodes ───────────────────────────────────────────────────────
+
+    subject_nodes = [
+        {
+            "id": str(row.id),
+            "name": str(row.title or "Untitled"),
+            "val": 20,
+            "group": "subject",
+            "color": row.color or "#8b5cf6",
+        }
+        for row in subject_rows
     ]
 
-    # Links: all links where both source and target belong to this user
-    links_res = await db.execute(
+    task_nodes = [
+        {
+            "id": str(row.id),
+            "name": str(row.title or "Untitled"),
+            "val": 10,
+            "group": "task",
+            "color": "#6366f1",
+        }
+        for row in task_rows
+    ]
+
+    note_nodes = [
+        {
+            "id": str(row.id),
+            "name": str(row.title or "Untitled"),
+            "val": 5,
+            "group": "note",
+            "color": "#94a3b8",
+        }
+        for row in note_rows
+    ]
+
+    nodes = subject_nodes + task_nodes + note_nodes
+
+    # ── 3. Build links ───────────────────────────────────────────────────────
+
+    links: list[dict] = []
+
+    # Note → Task links
+    for row in note_rows:
+        if row.task_id and row.task_id in task_id_set:
+            links.append({"source": str(row.id), "target": str(row.task_id)})
+
+    # Note → Subject links (only if not already connected via task)
+    for row in note_rows:
+        if row.subject_id and row.subject_id in subject_id_set:
+            links.append({"source": str(row.id), "target": str(row.subject_id)})
+
+    # Task → Subject links
+    for row in task_rows:
+        if row.subject_id and row.subject_id in subject_id_set:
+            links.append({"source": str(row.id), "target": str(row.subject_id)})
+
+    # Note–Note wikilinks (existing zettelkasten links)
+    wiki_links_res = await db.execute(
         select(NoteLinkModel.source_id, NoteLinkModel.target_id)
         .where(
-            NoteLinkModel.source_id.in_(note_ids),
-            NoteLinkModel.target_id.in_(note_ids),
+            NoteLinkModel.source_id.in_(note_id_set),
+            NoteLinkModel.target_id.in_(note_id_set),
         )
     )
-    links = [
-        {"source": str(row.source_id), "target": str(row.target_id)}
-        for row in links_res.all()
-    ]
+    for row in wiki_links_res.all():
+        links.append({"source": str(row.source_id), "target": str(row.target_id)})
 
     return {"nodes": nodes, "links": links}
 
@@ -295,3 +374,4 @@ async def delete_note(db: AsyncSession, user_id: UUID, note_id: UUID):
     note = await get_note_by_id(db, user_id, note_id)
     await db.delete(note)
     await db.commit()
+

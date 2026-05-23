@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { getMarkRange } from '@tiptap/core';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { StarterKit } from '@tiptap/starter-kit';
@@ -19,7 +20,13 @@ import { Image as TiptapImage } from '@tiptap/extension-image';
 import { FontSize } from '@/lib/tiptap/font-size';
 import { InlineComment } from '@/lib/tiptap/inline-comment';
 import { BidirectionalLink } from '@/lib/tiptap/bidirectional-link';
+import { DiagramBlock } from '@/lib/tiptap/diagram-block';
+import { DataChart } from '@/lib/tiptap/chart-block';
+import { TaskMention, SubjectMention } from '@/lib/tiptap/smart-mention';
+import { MagicGloss } from './MagicGloss';
 import { useNoteStore } from '@/store/useNoteStore';
+import { useAppStore } from '@/store/useAppStore';
+import { useSubjectStore } from '@/store/useSubjectStore';
 import { EditorHeader } from './EditorHeader';
 import { StudioToolbar } from './StudioToolbar';
 import {
@@ -34,12 +41,22 @@ import {
 interface TiptapEditorProps { noteId: string; }
 type SyncState = 'SAVED' | 'SAVING' | 'OFFLINE';
 
+interface FloatingGlossary {
+  text: string;
+  color: string;
+  x: number;
+  y: number;
+  from: number;
+  to: number;
+}
+
 interface ActiveComment {
   text: string;
   color: string;
   x: number;
   y: number;
 }
+
 
 // ---------------------------------------------------------------------------
 // Sync State Indicator (preserved from Phase 2)
@@ -109,22 +126,44 @@ const CommentCard: React.FC<{ comment: ActiveComment; onClose: () => void }> = (
   </div>
 );
 
+// Helper to convert falsy, empty, or invalid JSON structures into a safe empty PM doc.
+const getSafeContent = (content: any) => {
+  if (!content) return '<p></p>';
+  if (typeof content === 'object') {
+    if (Object.keys(content).length === 0 || !content.type) {
+      return '<p></p>';
+    }
+  }
+  return content;
+};
+
 // ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
 
 export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
   const { notes, updateLocalNote, syncNoteToServer } = useNoteStore();
+  const { openSplitView } = useAppStore();
   const note = notes[noteId];
 
   const [syncState, setSyncState] = useState<SyncState>('SAVED');
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Floating inline-comment card state
-  const [activeComment, setActiveComment] = useState<ActiveComment | null>(null);
+  // Floating MagicGloss vocabulary card state
+  const [activeGlossary, setActiveGlossary] = useState<FloatingGlossary | null>(null);
+  const [editNote, setEditNote] = useState('');
+
+  useEffect(() => {
+    if (activeGlossary) {
+      setEditNote(activeGlossary.text);
+    }
+  }, [activeGlossary]);
+
+
 
   const editor = useEditor(
     {
+      immediatelyRender: false,
       extensions: [
         StarterKit.configure({ underline: false }),
         Placeholder.configure({
@@ -144,29 +183,60 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
         TableHeader,
         TiptapImage.configure({ inline: false, allowBase64: false }),
         InlineComment,
+        MagicGloss,
         BidirectionalLink,
+        DiagramBlock,
+        DataChart,
+        TaskMention,
+        SubjectMention,
       ],
       editorProps: {
         attributes: {
-          class: 'prose prose-slate max-w-full min-h-[1000px] focus:outline-none',
+          class: 'focus:outline-none min-h-[960px]',
         },
-        handleClick: (_view, _pos, event) => {
+        handleClick: (view, pos, event) => {
           const target = event.target as HTMLElement;
-          const commentEl = target.closest('span[data-comment]') as HTMLElement | null;
-          if (commentEl) {
-            const text = commentEl.getAttribute('data-comment') ?? '';
-            const color = commentEl.getAttribute('data-color') ?? '#fef08a';
-            // Prevent overflow: clamp to 320px from right edge
-            const xPos = Math.min(event.clientX, window.innerWidth - 320);
-            setActiveComment({ text, color, x: xPos, y: event.clientY });
+
+          // ── Smart Mention click routing ───────────────────
+          const mentionEl = target.closest('.mention-badge') as HTMLElement | null;
+          if (mentionEl) {
+            const type = mentionEl.dataset.type;
+            const id = mentionEl.dataset.id ?? '';
+            const label = mentionEl.dataset.label ?? '';
+            if (type === 'task') {
+              // Route to split view — taskId is stored in data-id
+              openSplitView(id, label);
+              return true;
+            }
+            if (type === 'subject') {
+              // Activate the subject panel via store — no direct fetch
+              useSubjectStore.getState().setActiveSubject(id);
+              return true;
+            }
+          }
+
+          // ── MagicGloss vocabulary mark click routing ──────
+          const $pos = view.state.doc.resolve(pos);
+          const glossMark = $pos.marks().find(m => m.type.name === 'magicGloss');
+          if (glossMark) {
+            const range = getMarkRange($pos, glossMark.type);
+            const coords = view.coordsAtPos(pos);
+            setActiveGlossary({
+              text: glossMark.attrs.comment ?? '',
+              color: glossMark.attrs.color ?? '#fef08a',
+              x: coords.left,
+              y: coords.bottom + window.scrollY,
+              from: range ? range.from : pos,
+              to: range ? range.to : pos,
+            });
             return true;
           }
-          // Click outside comment → dismiss card
-          setActiveComment(null);
+
+          setActiveGlossary(null);
           return false;
         },
       },
-      content: note?.content_json ?? null,
+      content: getSafeContent(note?.content_json),
       onUpdate: ({ editor: ed }) => {
         const json = ed.getJSON();
         setSyncState('SAVING');
@@ -187,24 +257,22 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
   // Content sync when active note changes (preserved)
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
-    const currentContent = note?.content_json || {};
+    const currentContent = note?.content_json;
     queueMicrotask(() => {
       if (!editor || editor.isDestroyed) return;
-      if (Object.keys(currentContent).length === 0) {
-        editor.commands.setContent('');
-      } else {
-        editor.commands.setContent(currentContent);
-      }
+      editor.commands.setContent(getSafeContent(currentContent));
     });
   }, [note?.id, editor]);
 
-  // Dismiss comment card on Escape
+  // Dismiss MagicGloss card on Escape
   useEffect(() => {
-    if (!activeComment) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setActiveComment(null); };
+    if (!activeGlossary) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setActiveGlossary(null); };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [activeComment]);
+  }, [activeGlossary]);
+
+
 
   if (!editor) return null;
 
@@ -247,16 +315,78 @@ export const TiptapEditor: React.FC<TiptapEditorProps> = ({ noteId }) => {
       </BubbleMenu>
 
       {/* Scrollable Canvas Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-8 flex justify-center custom-scrollbar select-text">
-        <div className="bg-white w-full max-w-[850px] min-h-[1100px] shadow-xl border border-slate-200 rounded-sm px-16 py-20">
-          <EditorContent editor={editor} />
+      <div className="flex-1 overflow-y-auto flex justify-center custom-scrollbar select-text bg-slate-100/60 py-8">
+        <div 
+          className="w-full max-w-[816px] shadow-sm border border-slate-200/50"
+          style={{
+            // A4 Web standard height is ~1056px.
+            // We draw 1056px of white (the page), then 32px of transparent (the gap).
+            backgroundImage: 'linear-gradient(to bottom, white 0px, white 1056px, transparent 1056px, transparent 1088px)',
+            backgroundSize: '100% 1088px', // Total cycle is page + gap
+            minHeight: '1088px', // Ensure at least 1 page + 1 gap exists
+            paddingTop: '96px', // Top margin of first page
+            paddingBottom: '96px', // Bottom margin allowing scroll
+          }}
+        >
+          <div className="px-16 prose prose-slate max-w-full">
+            <EditorContent editor={editor} />
+          </div>
         </div>
       </div>
 
-      {/* Floating Inline Comment Card */}
-      {activeComment && (
-        <CommentCard comment={activeComment} onClose={() => setActiveComment(null)} />
+      {/* Floating MagicGloss Vocabulary Card */}
+      {activeGlossary && (
+        <div
+          className="absolute glass-card border border-slate-200 p-3 rounded-xl shadow-xl z-50 w-60 bg-white"
+          style={{ top: `${activeGlossary.y + 8}px`, left: `${activeGlossary.x - 20}px` }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: activeGlossary.color }}
+              />
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Vocabulary</span>
+            </div>
+            <button
+              onClick={() => setActiveGlossary(null)}
+              className="text-slate-300 hover:text-slate-500 transition-colors text-xs leading-none"
+              title="Close"
+            >
+              ✕
+            </button>
+          </div>
+          <textarea
+            value={editNote}
+            onChange={(e) => setEditNote(e.target.value)}
+            placeholder="Add a note..."
+            className="w-full text-sm text-slate-700 leading-relaxed min-h-[60px] p-2 border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-300 mb-3 bg-slate-50 placeholder:text-slate-300 resize-none"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                editor.chain().focus().setTextSelection({ from: activeGlossary.from, to: activeGlossary.to }).setMagicGloss({ color: activeGlossary.color, comment: editNote }).run();
+                setActiveGlossary(null);
+              }}
+              className="flex-1 text-xs bg-indigo-600 text-white hover:bg-indigo-700 transition-colors rounded-lg py-1.5 px-2 font-medium"
+            >
+              Save Note
+            </button>
+            <button
+              onClick={() => {
+                editor.commands.unsetMagicGloss();
+                setActiveGlossary(null);
+              }}
+              className="flex-1 text-xs text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors rounded-lg py-1.5 px-2 border border-rose-200"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
       )}
+
+
 
     </div>
   );

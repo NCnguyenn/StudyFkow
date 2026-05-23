@@ -30,8 +30,9 @@ function onTokenRefreshed(token: string | null) {
 export async function fetchWithAuth(url: string, options: FetchOptions = {}): Promise<Response> {
   const token = typeof window !== "undefined" ? localStorage.getItem("studyflow_access_token") : null;
   
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...options.headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };

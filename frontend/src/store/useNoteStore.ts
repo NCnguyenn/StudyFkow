@@ -18,7 +18,7 @@ interface NoteState {
   createFolder: (name: string, parentId?: string | null) => Promise<void>;
   renameFolder: (id: string, newName: string) => Promise<void>;
   deleteFolder: (id: string) => Promise<void>;
-  createNote: (folderId?: string | null, title?: string, taskId?: string | null) => Promise<string | undefined>;
+  createNote: (folderId?: string | null, title?: string, taskId?: string | null, subjectId?: string | null) => Promise<string | undefined>;
   renameNote: (id: string, newTitle: string) => void;
   deleteNote: (id: string) => Promise<void>;
 
@@ -252,13 +252,13 @@ export const useNoteStore = create<NoteState>((set, get) => ({
     }
   },
 
-  createNote: async (folderId: string | null = null, title: string = 'Untitled Note', taskId: string | null = null) => {
+  createNote: async (folderId: string | null = null, title: string = 'Untitled Note', taskId: string | null = null, subjectId: string | null = null) => {
     const tempId = `temp-${Date.now()}`;
     const tempNote: NoteItem = {
       id: tempId,
       user_id: 'temp',
       folder_id: folderId,
-      subject_id: null,
+      subject_id: subjectId,
       task_id: taskId,
       title,
       content_json: {},
@@ -275,7 +275,7 @@ export const useNoteStore = create<NoteState>((set, get) => ({
     try {
       const response = await fetchWithAuth('/notes/', {
         method: 'POST',
-        body: JSON.stringify({ title, folder_id: folderId, task_id: taskId })
+        body: JSON.stringify({ title, folder_id: folderId, task_id: taskId, subject_id: subjectId })
       });
       if (!response.ok) throw new Error('API failed');
       const createdNote = await response.json();
