@@ -11,7 +11,14 @@ import asyncio
 import logging
 from typing import Optional
 
+
 import chromadb
+from backend.app.core.database import _async_session_factory
+from backend.features.user_auth.infrastructure.orm import UserModel
+from backend.features.ai_pipeline.application.factory import get_llm_provider
+from sqlalchemy import select
+from uuid import UUID
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +45,7 @@ def _get_collection() -> chromadb.Collection:
 # Public API
 # ---------------------------------------------------------------------------
 
-async def ask_second_brain(user_id: str, query: str) -> str:
+async def ask_second_brain(user_id: str, query: str, db) -> str:
     """
     Answer a question using only the user's embedded notes.
 
@@ -91,16 +98,23 @@ async def ask_second_brain(user_id: str, query: str) -> str:
         f"Answer (cite which note(s) your answer is based on):"
     )
 
-    # --- 3. Mock LLM call (replace with real provider later) ---
+    # --- 3. Call real LLM provider ---
     logger.info("RAG prompt length: %d chars, sources: %s", len(prompt), cited_titles)
-    await asyncio.sleep(2)  # Simulate LLM latency
 
-    # --- 4. Construct mock response with citations ---
+    user_result = await db.execute(select(UserModel).where(UserModel.id == UUID(user_id)))
+    user = user_result.scalars().first()
+    if not user:
+        return "Error: User not found."
+
+    provider = get_llm_provider(user.llm_provider, user.llm_api_key)
+
+    answer = await provider.generate_chat_response(prompt)
+
+    # --- 4. Construct response with citations ---
     citations = ", ".join(f'"{t}"' for t in sorted(cited_titles))
-    mock_answer = (
-        f"Based on your notes, here's what I found:\n\n"
-        f"{documents[0][:300]}{'...' if len(documents[0]) > 300 else ''}\n\n"
-        f"📚 Sources: {citations}"
-    )
 
-    return mock_answer
+    # Check if answer already includes sources, if not, append them
+    if "Source" not in answer and citations:
+        answer += f"\n\n📚 Sources: {citations}"
+
+    return answer

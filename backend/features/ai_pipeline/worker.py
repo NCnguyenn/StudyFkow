@@ -71,6 +71,8 @@ async def _process_voice_memo_async(user_id: UUID, audio_file_path: str) -> None
       3. Publish a VOICE_NOTE_READY event to the user's Redis channel so the
          SSE stream can forward it to the connected browser in real time.
     """
+    raise NotImplementedError("Voice transcription is not yet implemented")
+
     # --- Step 1: Simulate heavy AI transcription ---
     await asyncio.sleep(3)
     mock_transcript = f"[Voice note from {audio_file_path}] — Transcription placeholder."
