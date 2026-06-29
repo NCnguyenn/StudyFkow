@@ -106,7 +106,7 @@ Zero new type errors allowed.
 Load and confirm:
 - [ ] `.ai/features/FEATURE_BOUNDARIES.md` — which features are affected.
 - [ ] `.ai/architecture/impact_map.md` — full blast radius.
-- [ ] `.ai/architecture/api_contracts.md` — if API shape is changing.
+- [ ] `backend/docs/API_CONTRACTS.md` — if API shape is changing.
 - [ ] `.ai/rules/refactor.md` — Strangler Fig protocol.
 
 Document the plan in a brief comment at the top of the first implementation file.

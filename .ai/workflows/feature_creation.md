@@ -14,7 +14,7 @@ Before writing a single line of code, complete ALL of the following:
 - [ ] Feature slug is determined (lowercase, underscore-separated, e.g., `quiz_engine`).
 - [ ] Impact of this feature on existing systems has been mapped (check `.ai/architecture/impact_map.md`).
 - [ ] No existing feature already covers this domain (prevents duplicate ownership).
-- [ ] Required new API endpoints are drafted against `.ai/architecture/api_contracts.md` conventions.
+- [ ] Required new API endpoints are drafted against `backend/docs/API_CONTRACTS.md` conventions.
 - [ ] Required new database tables are designed (schema-first, per `.ai/rules/database.md`).
 
 ---
@@ -36,7 +36,7 @@ Open `.ai/architecture/impact_map.md`. Add entries for:
 - New Celery tasks (if any).
 
 **Step 1.3 — Draft API Contracts:**
-Open `.ai/architecture/api_contracts.md`. Add new endpoints following the standard response envelope. Mark as `[DRAFT]` until implemented.
+Open `backend/docs/API_CONTRACTS.md`. Add new endpoints following the standard response envelope. Mark as `[DRAFT]` until implemented.
 
 ---
 

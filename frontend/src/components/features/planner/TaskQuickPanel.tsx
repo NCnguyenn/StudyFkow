@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useTaskStore } from '@/store/useTaskStore';
 import { useNoteStore } from '@/store/useNoteStore';
 import { useAppStore } from '@/store/useAppStore';
+import { useRouter } from 'next/navigation';
 import { X, CheckCircle2, Circle, Pencil, Trash2, FileText, Plus, Loader2 } from 'lucide-react';
 import TaskModal from '@/components/features/tasks/TaskModal';
+import QuickToast from '@/components/room/QuickToast';
 
 interface TaskQuickPanelProps {
   taskId: string;
@@ -13,15 +15,20 @@ export const TaskQuickPanel: React.FC<TaskQuickPanelProps> = ({ taskId }) => {
   const { tasks, updateTask, deleteTask } = useTaskStore();
   const { notes, createNote } = useNoteStore();
   const { closeSplitView, openSplitView } = useAppStore();
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isCreatingNote, setIsCreatingNote] = useState(false);
+
+  // Micro-animation state — short-lived, purely presentational
+  const [animatingIndex, setAnimatingIndex] = useState<number | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   const task = tasks.find(t => t.id === taskId);
 
   if (!task) return null;
 
   // Filter notes attached to this task — pure Zustand read, no fetch
-  const attachedNotes = Object.values(notes).filter(n => n.task_id === taskId);
+  const attachedNotes = Object.values(notes).filter(n => n.task_ids?.includes(taskId));
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this task?')) {
@@ -32,26 +39,55 @@ export const TaskQuickPanel: React.FC<TaskQuickPanelProps> = ({ taskId }) => {
 
   const toggleSubtask = (index: number) => {
     if (!task.subtasks) return;
+    const wasCompleted = task.subtasks[index].is_completed;
     const newSubtasks = [...task.subtasks];
     newSubtasks[index] = {
       ...newSubtasks[index],
       is_completed: !newSubtasks[index].is_completed,
     };
     updateTask(task.id, { subtasks: newSubtasks });
+
+    // Trigger micro-animation only on completion (not un-completion)
+    if (!wasCompleted) {
+      setAnimatingIndex(index);
+      setShowToast(true);
+      setTimeout(() => setAnimatingIndex(null), 500);
+    }
   };
 
   const handleCreateNote = async () => {
     setIsCreatingNote(true);
     try {
-      // Inherit both task_id and subject_id to maintain Graph integrity
+      // Inherit both task_ids and subject_ids to maintain Graph integrity
       const newNoteId = await createNote(
         null,
-        `${task.title} — Notes`,
-        task.id,
-        task.subject_id ?? null,
+        `Note for: ${task.title}`,
+        [task.id],
+        task.subject_id ? [task.subject_id] : [],
       );
       if (newNoteId) {
-        await openSplitView(task.id, task.title, newNoteId);
+        const noteStore = useNoteStore.getState();
+        const initialContent = {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'smartTask',
+                  attrs: { taskId: task.id, title: task.title, checked: task.task_status === 'COMPLETED' }
+                }
+              ]
+            },
+            {
+              type: 'paragraph'
+            }
+          ]
+        };
+        noteStore.updateLocalNote(newNoteId, { content_json: initialContent });
+        noteStore.syncNoteToServer(newNoteId, { content_json: initialContent });
+        
+        router.push(`/notes/${newNoteId}`);
       }
     } finally {
       setIsCreatingNote(false);
@@ -92,14 +128,17 @@ export const TaskQuickPanel: React.FC<TaskQuickPanelProps> = ({ taskId }) => {
               <div
                 key={i}
                 onClick={() => toggleSubtask(i)}
-                className="flex items-center gap-3 p-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] rounded-xl cursor-pointer transition-colors group"
+                className={`flex items-center gap-3 p-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] rounded-xl cursor-pointer transition-colors group ${animatingIndex === i ? 'task-complete-flash' : ''}`}
               >
                 {st.is_completed ? (
-                  <CheckCircle2 className="w-5 h-5 text-indigo-400 shrink-0" />
+                  <svg className={`w-5 h-5 shrink-0 ${animatingIndex === i ? 'task-check-draw' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" className="text-indigo-400" />
+                    <path d="M8 12.5 L11 15.5 L16.5 9" className="text-indigo-400" />
+                  </svg>
                 ) : (
                   <Circle className="w-5 h-5 text-gray-500 group-hover:text-gray-400 shrink-0" />
                 )}
-                <span className={`text-sm ${st.is_completed ? 'text-gray-500 line-through' : 'text-gray-200'}`}>
+                <span className={`text-sm ${st.is_completed ? `text-gray-500 line-through ${animatingIndex === i ? 'task-strike-sweep' : ''}` : 'text-gray-200'}`}>
                   {st.title}
                 </span>
               </div>
@@ -147,8 +186,10 @@ export const TaskQuickPanel: React.FC<TaskQuickPanelProps> = ({ taskId }) => {
       </div>
 
       {isEditing && (
-        <TaskModal isOpen={isEditing} editTask={task} onClose={() => setIsEditing(false)} onSubmit={async (updated) => { await updateTask(task.id, updated); }} />
+        <TaskModal isOpen={isEditing} editTask={task as any} onClose={() => setIsEditing(false)} onSubmit={async (updated) => { await updateTask(task.id, updated); }} />
       )}
+
+      {showToast && <QuickToast message="✅ Nice!" onDone={() => setShowToast(false)} />}
     </div>
   );
 };

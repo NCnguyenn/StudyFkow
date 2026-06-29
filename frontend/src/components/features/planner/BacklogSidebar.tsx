@@ -82,17 +82,17 @@ export const BacklogSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-80 h-full flex flex-col border-r border-white/60 bg-white/50 backdrop-blur-xl">
+    <aside className="w-80 h-full flex flex-col border-r border-white/[0.08] room-glass">
       {/* Sidebar Header */}
-      <div className="p-5 border-b border-white/60 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-800 tracking-wide">Strategic Backlog</h2>
+      <div className="p-5 border-b border-white/[0.08] flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-slate-100 tracking-wide">Strategic Backlog</h2>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-lg hover:bg-white/60 transition-colors text-slate-500 hover:text-slate-800">
+          <button className="p-2 rounded-lg hover:bg-white/[0.08] transition-colors text-slate-400 hover:text-slate-200">
             <Calendar className="w-4 h-4" />
           </button>
           <button 
             onClick={toggleAdding}
-            className="p-2 rounded-lg bg-white/40 hover:bg-white/80 transition-colors text-slate-700 border border-white/80 shadow-sm"
+            className="p-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] transition-colors text-slate-300 border border-white/[0.08] shadow-sm"
           >
             {isAdding ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
           </button>
@@ -109,7 +109,7 @@ export const BacklogSidebar: React.FC = () => {
 
       {/* Add Subject Inline Form */}
       {isAdding && (
-        <div className="mx-4 mt-4 p-4 rounded-xl border border-white/80 bg-white/60 backdrop-blur-md shadow-sm">
+        <div className="mx-4 mt-4 p-4 rounded-xl border border-white/[0.1] room-glass shadow-sm">
           <form onSubmit={handleCreateSubmit} className="flex flex-col gap-3">
             <input
               autoFocus
@@ -117,14 +117,14 @@ export const BacklogSidebar: React.FC = () => {
               placeholder="Subject Title..."
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              className="bg-white/50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
+              className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:border-indigo-400/40 transition-colors"
             />
             
             <textarea
               placeholder="Description (optional)..."
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
-              className="bg-white/50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors resize-none h-16"
+              className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:border-indigo-400/40 transition-colors resize-none h-16"
             />
 
             {/* Color Selector */}
@@ -161,8 +161,8 @@ export const BacklogSidebar: React.FC = () => {
               onClick={() => setAttachNote(!attachNote)}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
                 attachNote 
-                  ? 'bg-indigo-50 border-indigo-200 text-indigo-600' 
-                  : 'bg-white/50 border-slate-200 text-slate-500 hover:bg-white/80 hover:text-slate-700'
+                  ? 'bg-indigo-500/20 border-indigo-400/30 text-indigo-300' 
+                  : 'bg-white/[0.05] border-white/[0.1] text-slate-400 hover:bg-white/[0.08] hover:text-slate-200'
               }`}
             >
               <FileText className="w-4 h-4" />
@@ -173,7 +173,7 @@ export const BacklogSidebar: React.FC = () => {
               <select
                 value={newPriority}
                 onChange={(e) => setNewPriority(e.target.value as TaskPriority)}
-                className="bg-white/50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300"
+                className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:border-indigo-400/40"
               >
                 <option value="LOW">Low Priority</option>
                 <option value="MEDIUM">Medium Priority</option>
@@ -198,7 +198,7 @@ export const BacklogSidebar: React.FC = () => {
           // Skeleton Loader
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-28 rounded-xl bg-white/40 animate-pulse border border-white/60" />
+              <div key={i} className="h-28 rounded-xl bg-white/[0.04] animate-pulse border border-white/[0.06]" />
             ))}
           </div>
         ) : (!subjects || subjects.length === 0) && !isAdding ? (

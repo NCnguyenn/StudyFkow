@@ -14,7 +14,7 @@ from backend.app.core.base import Base
 from backend.features.study_sessions.infrastructure.orm import SessionModel, SessionPauseModel
 from backend.features.user_auth.infrastructure.orm import UserModel
 from backend.features.task_management.infrastructure.orm import TaskModel, TaskCategoryModel, SubjectModel
-from backend.features.notes.infrastructure.models import NoteFolderModel, NoteModel
+from backend.features.notes.infrastructure.models import NoteFolderModel, NoteModel, NoteLinkModel, NoteVersionModel, NoteTemplateModel, NoteTagModel, NoteTagMappingModel, NoteSubjectModel, NoteTaskModel, NoteSyncedBlockModel
 from backend.features.analytics.infrastructure.orm import InsightModel
 
 target_metadata = Base.metadata

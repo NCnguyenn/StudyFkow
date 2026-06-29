@@ -59,7 +59,7 @@ export const SoundscapePlayer = () => {
   }, [volume]);
 
   return (
-    <div className="fixed bottom-8 left-8 w-64 glass-card overflow-hidden transition-all duration-300">
+    <div className="fixed bottom-8 left-8 w-64 room-glass rounded-xl border border-white/[0.08] overflow-hidden transition-all duration-300">
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
         className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-colors"

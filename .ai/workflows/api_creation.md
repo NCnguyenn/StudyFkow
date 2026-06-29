@@ -20,7 +20,7 @@
 
 ### Step 1 — Contract-First Design
 
-**Before writing any code**, document the endpoint in `.ai/architecture/api_contracts.md` with `[DRAFT]` status:
+**Before writing any code**, document the endpoint in `backend/docs/API_CONTRACTS.md` with `[DRAFT]` status:
 
 ```markdown
 ### `POST /decks/{deck_id}/quiz` [DRAFT]
@@ -227,7 +227,7 @@ export async function requestQuizGeneration(
 
 ### Step 8 — Mark Contract as Active
 
-Update `.ai/architecture/api_contracts.md`: change `[DRAFT]` to `[ACTIVE]`.
+Update `backend/docs/API_CONTRACTS.md`: change `[DRAFT]` to `[ACTIVE]`.
 
 ### Step 9 — Update Completion Log
 

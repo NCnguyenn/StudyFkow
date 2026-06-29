@@ -41,7 +41,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       
       try {
         // Create note with the task link
-        const newNoteId = await noteStore.createNote(null, `${taskTitle} - Notes`, taskId);
+        const newNoteId = await noteStore.createNote(null, `${taskTitle} - Notes`, [taskId]);
         set({ splitViewNoteId: newNoteId });
       } catch (e) {
         console.error("Failed to auto-generate note for split view", e);

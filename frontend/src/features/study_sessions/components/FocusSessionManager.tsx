@@ -252,7 +252,7 @@ export function FocusSessionManager({ linkedTaskTitle }: { linkedTaskTitle?: str
         useNoteStore.getState().createNote(
           null,
           `Quick Note - ${linkedTaskTitle || 'Focus Session'}`,
-          taskId
+          taskId ? [taskId] : []
         ).then((id) => {
           if (id) {
             const content = {

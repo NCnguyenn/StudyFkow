@@ -49,6 +49,15 @@ def main():
         print("💻 Frontend: http://localhost:3000")
         print("\n🛑 Press Ctrl+C to stop all services.\n")
         
+        # Automatically open default browser after a short delay
+        try:
+            import webbrowser
+            # Wait 1.5 seconds to let port bindings initialize
+            time.sleep(1.5)
+            webbrowser.open("http://localhost:3000")
+        except Exception as e:
+            print(f"⚠️ Failed to open browser: {e}")
+            
         # Keep the main script alive
         while True:
             time.sleep(1)

@@ -1,0 +1,46 @@
+{
+  "theme": "home",
+  "version": "3.0",
+  "viewpoint": "eye-level",
+  "base": {
+    "room": { "src": "room_base.png", "priority": 1 },
+    "desk_closeup": { "src": "desk_zone.png", "priority": 2 }
+  },
+  "hotspots": {
+    "notebook": {
+      "label": "Ghi chú",
+      "route": "/notes",
+      "bounds": { "x": "55%", "y": "58%", "w": "12%", "h": "15%" },
+      "zoomTarget": { "x": "55%", "y": "60%", "scale": 2.2 },
+      "hoverAnimation": "brighten"
+    },
+    "clock": {
+      "label": "Focus",
+      "route": "/focus",
+      "bounds": { "x": "42%", "y": "55%", "w": "8%", "h": "10%" },
+      "zoomTarget": { "x": "50%", "y": "65%", "scale": 2.8 },
+      "hoverAnimation": "pulse"
+    },
+    "corkboard": {
+      "label": "Planner",
+      "route": "/tasks",
+      "bounds": { "x": "75%", "y": "20%", "w": "18%", "h": "25%" },
+      "zoomTarget": { "x": "80%", "y": "30%", "scale": 2.0 },
+      "hoverAnimation": "glow"
+    },
+    "laptop": {
+      "label": "Canvas",
+      "route": "/canvas",
+      "bounds": { "x": "35%", "y": "55%", "w": "15%", "h": "18%" },
+      "zoomTarget": { "x": "42%", "y": "62%", "scale": 2.5 },
+      "hoverAnimation": "brighten"
+    },
+    "bookshelf": {
+      "label": "Insights",
+      "route": "/insights",
+      "bounds": { "x": "15%", "y": "15%", "w": "15%", "h": "50%" },
+      "zoomTarget": { "x": "20%", "y": "40%", "scale": 1.8 },
+      "hoverAnimation": "glow"
+    }
+  }
+}

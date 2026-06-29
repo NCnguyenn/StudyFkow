@@ -10,7 +10,10 @@ export default function FocusPage() {
   const { phase, abortSession } = useFocusStore();
 
   return (
-    <div className="relative flex items-center justify-center h-full w-full overflow-hidden">
+    <div
+      className="relative flex items-center justify-center h-full w-full overflow-hidden"
+      style={{ animation: 'room-fade-in 350ms ease-out' }}
+    >
 
       {/* Phase-reactive Aura glow behind the clock */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -29,14 +32,14 @@ export default function FocusPage() {
           </div>
         ) : phase === 'COMPLETED' ? (
           <div className="h-full flex flex-col items-center justify-center animate-in fade-in zoom-in-95 duration-700">
-            <div className="w-24 h-24 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-8 shadow-sm">
-              <Trophy className="w-12 h-12 text-emerald-500" />
+            <div className="w-24 h-24 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-8 shadow-sm backdrop-blur-sm">
+              <Trophy className="w-12 h-12 text-emerald-400" />
             </div>
-            <h1 className="text-4xl font-light text-slate-800 tracking-widest mb-3">SESSION COMPLETE</h1>
-            <p className="text-slate-500 text-sm tracking-wider mb-12">Well done. Your focus was recorded.</p>
+            <h1 className="text-4xl font-light text-slate-100 tracking-widest mb-3">SESSION COMPLETE</h1>
+            <p className="text-slate-400 text-sm tracking-wider mb-12">Well done. Your focus was recorded.</p>
             <button 
               onClick={abortSession}
-              className="flex items-center gap-3 px-8 py-3 rounded-full glass-card text-slate-600 hover:text-slate-800 hover:bg-white/80 transition-all"
+              className="flex items-center gap-3 px-8 py-3 rounded-full room-glass text-slate-300 hover:text-slate-100 hover:bg-white/[0.08] transition-all border border-white/[0.08]"
             >
               <RotateCcw className="w-4 h-4" />
               <span className="text-sm font-medium tracking-wider">New Session</span>

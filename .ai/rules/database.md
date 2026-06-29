@@ -17,7 +17,7 @@ Application logic can be patched. AI agents can hallucinate incorrect business r
 All database changes MUST begin with a schema design decision — not an ORM model. The sequence is:
 
 1. Design the schema in SQL.
-2. Document it in `.ai/architecture/database_schema.md`.
+2. Document it in `backend/docs/DATABASE_SCHEMA.md`.
 3. Generate the Alembic migration script.
 4. Review the migration for reversibility.
 5. Apply to staging, verify.

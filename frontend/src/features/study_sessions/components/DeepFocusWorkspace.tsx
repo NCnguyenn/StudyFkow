@@ -6,25 +6,36 @@ import { ZenClock } from './ZenClock';
 import { SoundscapePlayer } from './SoundscapePlayer';
 import { useStrictFocus } from '@/hooks/useStrictFocus';
 import { Play, Pause, SkipForward, Square, CheckCircle2, Circle, WifiOff } from 'lucide-react';
+import QuickToast from '@/components/room/QuickToast';
 
 const TaskQuickList = ({ taskId }: { taskId: string }) => {
   const { tasks, updateTask } = useTaskStore();
   const task = tasks.find(t => t.id === taskId);
+  const [animatingIndex, setAnimatingIndex] = React.useState<number | null>(null);
+  const [showToast, setShowToast] = React.useState(false);
 
   if (!task) return null;
 
   const toggleSubtask = (index: number) => {
     if (!task.subtasks) return;
+    const wasCompleted = task.subtasks[index].is_completed;
     const newSubtasks = [...task.subtasks];
     newSubtasks[index] = { 
       ...newSubtasks[index], 
       is_completed: !newSubtasks[index].is_completed 
     };
     updateTask(task.id, { subtasks: newSubtasks });
+
+    if (!wasCompleted) {
+      setAnimatingIndex(index);
+      setShowToast(true);
+      setTimeout(() => setAnimatingIndex(null), 500);
+    }
   };
 
   return (
-    <div className="fixed bottom-8 right-8 w-80 glass-card p-5 animate-in slide-in-from-bottom-4">
+    <>
+    <div className="fixed bottom-8 right-8 w-80 room-glass rounded-xl p-5 animate-in slide-in-from-bottom-4 border border-white/[0.08]">
       <h3 className="text-xs font-semibold text-indigo-400/80 mb-3 tracking-[0.2em] uppercase">Focus Target</h3>
       <p className="text-white font-medium mb-4">{task.title}</p>
       
@@ -33,14 +44,17 @@ const TaskQuickList = ({ taskId }: { taskId: string }) => {
           <div 
             key={i} 
             onClick={() => toggleSubtask(i)}
-            className="flex items-center gap-3 p-2 hover:bg-white/[0.05] rounded-lg cursor-pointer transition-colors group"
+            className={`flex items-center gap-3 p-2 hover:bg-white/[0.05] rounded-lg cursor-pointer transition-colors group ${animatingIndex === i ? 'task-complete-flash' : ''}`}
           >
             {st.is_completed ? (
-              <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0" />
+              <svg className={`w-4 h-4 shrink-0 ${animatingIndex === i ? 'task-check-draw' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" className="text-indigo-400" />
+                <path d="M8 12.5 L11 15.5 L16.5 9" className="text-indigo-400" />
+              </svg>
             ) : (
               <Circle className="w-4 h-4 text-gray-500 group-hover:text-gray-400 shrink-0" />
             )}
-            <span className={`text-sm truncate ${st.is_completed ? 'text-gray-500 line-through' : 'text-gray-300'}`}>
+            <span className={`text-sm truncate ${st.is_completed ? `text-gray-500 line-through ${animatingIndex === i ? 'task-strike-sweep' : ''}` : 'text-gray-300'}`}>
               {st.title}
             </span>
           </div>
@@ -50,6 +64,8 @@ const TaskQuickList = ({ taskId }: { taskId: string }) => {
         )}
       </div>
     </div>
+    {showToast && <QuickToast message="✅ Nice!" onDone={() => setShowToast(false)} />}
+    </>
   );
 };
 
@@ -158,7 +174,7 @@ export const DeepFocusWorkspace = () => {
       {linkedTaskId && <TaskQuickList taskId={linkedTaskId} />}
 
       {/* Minimalistic Floating Controls */}
-      <div className="fixed bottom-10 flex items-center gap-3 glass-card px-5 py-2.5 rounded-full">
+      <div className="fixed bottom-10 flex items-center gap-3 room-glass rounded-full px-5 py-2.5 border border-white/[0.08]">
         
         {phase === 'ABANDONED' ? (
           <button 

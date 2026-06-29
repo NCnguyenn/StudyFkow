@@ -81,8 +81,7 @@ export async function fetchWithAuth(url: string, options: FetchOptions = {}): Pr
       } catch (err) {
         isRefreshing = false;
         if (typeof window !== "undefined") {
-          localStorage.removeItem("studyflow_access_token");
-          window.location.href = "/login";
+          console.warn("[API] Auth refresh failed. Keeping user logged in offline dev mode.");
         }
         onTokenRefreshed(null); // release queued requests
         return res; // Return original 401

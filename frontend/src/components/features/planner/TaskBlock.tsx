@@ -46,20 +46,29 @@ export const TaskBlock: React.FC<TaskBlockProps> = ({ task, styleParams, onTaskF
 
   const pendingSubtasks = task.subtasks?.filter(st => !st.is_completed).length || 0;
 
+  // Done-state detection: completed tasks get strike-through + reduced opacity
+  const isDone = task.status === 'DONE' || task.status === 'COMPLETED';
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
-      className="absolute w-full px-1 py-1 cursor-grab active:cursor-grabbing"
+      className={`absolute w-full px-1 py-1 cursor-grab active:cursor-grabbing ${isDone ? 'opacity-60' : ''}`}
     >
       <div 
-        className={`h-full w-full rounded-md border-l-4 ${borderColor} p-2 flex flex-col shadow-sm hover:shadow-md transition-shadow overflow-hidden group`}
+        className={`h-full w-full rounded-md border-l-4 ${borderColor} p-2 flex flex-col shadow-sm hover:shadow-md transition-shadow overflow-hidden group relative`}
         style={{ backgroundColor: task.color_code || '#e2e8f0' }}
       >
-        <div className="flex justify-between items-start gap-1">
-          <span className="text-xs font-semibold text-slate-900 truncate leading-tight">{task.title}</span>
+        {/* Push-pin icon — corkboard aesthetic */}
+        <span className="absolute -top-0.5 right-1.5 text-[10px] select-none opacity-70 drop-shadow-sm" aria-hidden="true">📌</span>
+
+        {/* Glass shimmer overlay */}
+        <div className="absolute inset-0 rounded-md bg-white/10 pointer-events-none" />
+
+        <div className="flex justify-between items-start gap-1 relative z-10">
+          <span className={`text-xs font-semibold text-slate-900 truncate leading-tight ${isDone ? 'line-through decoration-slate-600' : ''}`}>{task.title}</span>
           <button 
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => openSplitView(task.id, task.title, null)}
@@ -69,7 +78,7 @@ export const TaskBlock: React.FC<TaskBlockProps> = ({ task, styleParams, onTaskF
           </button>
         </div>
         
-        <div className="flex items-center gap-2 mt-auto pt-1">
+        <div className="flex items-center gap-2 mt-auto pt-1 relative z-10">
           <span className={`text-[9px] font-bold tracking-wider text-slate-700`}>
              {task.priority === 3 ? 'HIGH' : task.priority === 2 ? 'MED' : 'LOW'}
           </span>

@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
-import { X, Loader2, Share2 } from 'lucide-react';
+import { X, Loader2, Share2, Eye, EyeOff } from 'lucide-react';
 import { fetchWithAuth } from '@/lib/api-utils';
+import { useNoteStore } from '@/store/useNoteStore';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -17,6 +18,7 @@ interface GraphNode {
   val: number;
   group: NodeGroup;
   color: string;
+  backlinks?: number;
   // injected by react-force-graph at runtime
   x?: number;
   y?: number;
@@ -82,6 +84,15 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  // Phase 6: Filter toggles
+  const [showSubjects, setShowSubjects] = useState(true);
+  const [showTasks, setShowTasks] = useState(true);
+  const [showNotes, setShowNotes] = useState(true);
+
+  // Phase 6: Navigate on click
+  const { setActiveNote } = useNoteStore();
 
   // Fetch graph data when modal opens
   useEffect(() => {
@@ -95,6 +106,21 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
         const res = await fetchWithAuth('/notes/graph');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: RawGraphData = await res.json();
+
+        // Phase 6: Compute backlink counts for note nodes
+        const backlinkCounts: Record<string, number> = {};
+        data.links.forEach((link) => {
+          const targetId = typeof link.target === 'string' ? link.target : (link.target as any).id;
+          backlinkCounts[targetId] = (backlinkCounts[targetId] || 0) + 1;
+        });
+        data.nodes.forEach((node) => {
+          if (node.group === 'note') {
+            node.backlinks = backlinkCounts[node.id] || 0;
+            // Scale note val by backlinks (min 3, max 12)
+            node.val = Math.min(12, Math.max(3, 3 + node.backlinks * 1.5));
+          }
+        });
+
         if (!cancelled) setRawData(data);
       } catch (err) {
         if (!cancelled) setError('Failed to load knowledge graph.');
@@ -131,11 +157,24 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
     return () => document.removeEventListener('keydown', handler);
   }, [isOpen, onClose]);
 
-  // ── useMemo: process graph data once per fetch, not on every render ────────
-  const graphData = useMemo(() => ({
-    nodes: rawData.nodes,
-    links: rawData.links,
-  }), [rawData]);
+  // Phase 6: Filtered graph data based on toggles
+  const graphData = useMemo(() => {
+    const visibleGroups = new Set<NodeGroup>();
+    if (showSubjects) visibleGroups.add('subject');
+    if (showTasks) visibleGroups.add('task');
+    if (showNotes) visibleGroups.add('note');
+
+    const filteredNodes = rawData.nodes.filter((n) => visibleGroups.has(n.group));
+    const visibleIds = new Set(filteredNodes.map((n) => n.id));
+
+    const filteredLinks = rawData.links.filter((l) => {
+      const sourceId = typeof l.source === 'string' ? l.source : (l.source as any).id;
+      const targetId = typeof l.target === 'string' ? l.target : (l.target as any).id;
+      return visibleIds.has(sourceId) && visibleIds.has(targetId);
+    });
+
+    return { nodes: filteredNodes, links: filteredLinks };
+  }, [rawData, showSubjects, showTasks, showNotes]);
 
   // ── paintNode: multi-layer rendering by group ─────────────────────────────
   const paintNode = useCallback(
@@ -147,7 +186,7 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
 
       const label = n.name || 'Untitled';
       const group: NodeGroup = n.group ?? 'note';
-      const r = GROUP_RADIUS[group];
+      const r = group === 'note' ? Math.min(8, Math.max(3, (n.val || 4))) : GROUP_RADIUS[group];
       const baseColor = n.color || '#94a3b8';
       const isHovered = hoveredNode?.id === n.id;
       const fontSize = Math.max(group === 'subject' ? 13 / globalScale : 11 / globalScale, 2.5);
@@ -212,9 +251,20 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
     [],
   );
 
-  const handleNodeHover = useCallback((node: object | null) => {
+  const handleNodeHover = useCallback((node: object | null, previousNode: object | null) => {
     setHoveredNode(node as GraphNode | null);
   }, []);
+
+  // Phase 6: Click to navigate
+  const handleNodeClick = useCallback((node: object) => {
+    const n = node as GraphNode;
+    if (n.group === 'note') {
+      setActiveNote(n.id);
+      onClose();
+    }
+    // For tasks and subjects, we could navigate to their respective pages
+    // but for now just close the modal for notes only
+  }, [setActiveNote, onClose]);
 
   if (!isOpen) return null;
 
@@ -264,6 +314,34 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
           </button>
         </div>
 
+        {/* Phase 6: Filter Legend */}
+        {!loading && !error && graphData.nodes.length > 0 && (
+          <div className="flex items-center gap-3 px-6 py-2.5 border-b border-slate-800/60 shrink-0">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mr-1">Filter</span>
+            <FilterToggle
+              label="Subjects"
+              color="#8b5cf6"
+              active={showSubjects}
+              count={subjectCount}
+              onClick={() => setShowSubjects(!showSubjects)}
+            />
+            <FilterToggle
+              label="Tasks"
+              color="#6366f1"
+              active={showTasks}
+              count={taskCount}
+              onClick={() => setShowTasks(!showTasks)}
+            />
+            <FilterToggle
+              label="Notes"
+              color="#94a3b8"
+              active={showNotes}
+              count={noteCount}
+              onClick={() => setShowNotes(!showNotes)}
+            />
+          </div>
+        )}
+
         {/* Canvas area */}
         <div ref={containerRef} className="flex-1 relative">
           {loading ? (
@@ -280,42 +358,107 @@ export const NetworkGraphModal: React.FC<NetworkGraphModalProps> = ({
               </p>
             </div>
           ) : (
-            <ForceGraph2D
-              graphData={graphData}
-              width={dimensions.width}
-              height={dimensions.height}
-              backgroundColor="transparent"
-              nodeCanvasObject={paintNode}
-              nodePointerAreaPaint={nodePointerAreaPaint}
-              onNodeHover={handleNodeHover}
-              linkColor={(link) => {
-                // Tint links by their source node group
-                const src = typeof link.source === 'object'
-                  ? (link.source as GraphNode).group
-                  : null;
-                if (src === 'subject') return 'rgba(139, 92, 246, 0.3)';
-                if (src === 'task') return 'rgba(99, 102, 241, 0.2)';
-                return 'rgba(148, 163, 184, 0.15)';
-              }}
-              linkWidth={1.5}
-              linkDirectionalParticles={2}
-              linkDirectionalParticleWidth={1.5}
-              linkDirectionalParticleColor={(link) => {
-                const src = typeof link.source === 'object'
-                  ? (link.source as GraphNode).group
-                  : null;
-                return src === 'subject' ? '#a78bfa' : '#818cf8';
-              }}
-              cooldownTicks={100}
-              enableZoomInteraction={true}
-              enablePanInteraction={true}
-            />
+            <>
+              <ForceGraph2D
+                graphData={graphData}
+                width={dimensions.width}
+                height={dimensions.height}
+                backgroundColor="transparent"
+                nodeCanvasObject={paintNode}
+                nodePointerAreaPaint={nodePointerAreaPaint}
+                onNodeHover={handleNodeHover}
+                onNodeClick={handleNodeClick}
+                linkColor={(link: any) => {
+                  const src = typeof link.source === 'object'
+                    ? (link.source as GraphNode).group
+                    : null;
+                  if (src === 'subject') return 'rgba(139, 92, 246, 0.3)';
+                  if (src === 'task') return 'rgba(99, 102, 241, 0.2)';
+                  return 'rgba(148, 163, 184, 0.15)';
+                }}
+                linkWidth={1.5}
+                linkDirectionalParticles={2}
+                linkDirectionalParticleWidth={1.5}
+                linkDirectionalParticleColor={(link: any) => {
+                  const src = typeof link.source === 'object'
+                    ? (link.source as GraphNode).group
+                    : null;
+                  return src === 'subject' ? '#a78bfa' : '#818cf8';
+                }}
+                cooldownTicks={100}
+                enableZoomInteraction={true}
+                enablePanInteraction={true}
+              />
+
+              {/* Phase 6: Hover Tooltip */}
+              {hoveredNode && (
+                <div
+                  className="absolute pointer-events-none z-50 px-3 py-2 rounded-xl bg-slate-800/95 backdrop-blur-sm border border-slate-700/60 shadow-xl text-xs"
+                  style={{
+                    left: '50%',
+                    bottom: '16px',
+                    transform: 'translateX(-50%)',
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: hoveredNode.color }}
+                    />
+                    <span className="font-semibold text-slate-200 max-w-[200px] truncate">
+                      {hoveredNode.name}
+                    </span>
+                    <span className="text-slate-500 uppercase tracking-wider text-[9px]">
+                      {hoveredNode.group}
+                    </span>
+                  </div>
+                  {hoveredNode.group === 'note' && hoveredNode.backlinks !== undefined && (
+                    <p className="text-slate-400 mt-1">
+                      {hoveredNode.backlinks} backlink{hoveredNode.backlinks !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                  {hoveredNode.group === 'note' && (
+                    <p className="text-violet-400 mt-0.5">Click to open</p>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
     </div>
   );
 };
+
+// ---------------------------------------------------------------------------
+// Filter Toggle Button
+// ---------------------------------------------------------------------------
+
+const FilterToggle: React.FC<{
+  label: string;
+  color: string;
+  active: boolean;
+  count: number;
+  onClick: () => void;
+}> = ({ label, color, active, count, onClick }) => (
+  <button
+    onClick={onClick}
+    className={[
+      'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150',
+      active
+        ? 'bg-slate-800 text-slate-200 border border-slate-700'
+        : 'bg-transparent text-slate-600 border border-transparent hover:bg-slate-800/50',
+    ].join(' ')}
+  >
+    <span
+      className="w-2 h-2 rounded-full transition-opacity"
+      style={{ backgroundColor: color, opacity: active ? 1 : 0.3 }}
+    />
+    {active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+    <span>{label}</span>
+    <span className="text-slate-500 font-mono">{count}</span>
+  </button>
+);
 
 // ---------------------------------------------------------------------------
 // Utility: lighten a hex color by a fraction (for hover state)

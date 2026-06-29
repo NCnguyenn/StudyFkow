@@ -26,16 +26,20 @@ A feature MAY expose behavior to other features only through its **public contra
 
 ## 2. FEATURE REGISTRY
 
-| Feature Slug | Backend Path | Frontend Path | Owner Domain |
-|---|---|---|---|
-| `user_auth` | `backend/features/user_auth/` | `frontend/features/auth/` | Authentication & Identity |
-| `study_sessions` | `backend/features/study_sessions/` | `frontend/features/sessions/` | Session Lifecycle |
-| `flashcard_engine` | `backend/features/flashcard_engine/` | `frontend/features/flashcards/` | Card Management & Review |
-| `ai_pipeline` | `backend/features/ai_pipeline/` | `frontend/features/ai_tasks/` | AI Task Orchestration |
-| `spaced_repetition` | `backend/features/spaced_repetition/` | (consumed by flashcards UI) | Review Scheduling |
-| `analytics` | `backend/features/analytics/` | `frontend/features/analytics/` | Stats & Progress |
-| `sync_engine` | `backend/features/sync_engine/` | `frontend/features/sync/` | Offline-First Sync |
-| `notifications` | `backend/features/notifications/` | `frontend/features/notifications/` | User Notifications |
+> [!NOTE]
+> This registry describes the **target architecture** (all planned features). Features marked ✅ exist in the current codebase; features marked 🔮 are planned for future phases. See `JULES_ONBOARDING.md` §4 for actual codebase structure.
+
+
+| Feature Slug | Backend Path | Frontend Path | Owner Domain | Status |
+|---|---|---|---|:---:|
+| `user_auth` | `backend/features/user_auth/` | `frontend/features/auth/` | Authentication & Identity | ✅ |
+| `study_sessions` | `backend/features/study_sessions/` | `frontend/features/sessions/` | Session Lifecycle | ✅ |
+| `flashcard_engine` | `backend/features/flashcard_engine/` | `frontend/features/flashcards/` | Card Management & Review | 🔮 B5 |
+| `ai_pipeline` | `backend/features/ai_pipeline/` | `frontend/features/ai_tasks/` | AI Task Orchestration | 🔮 B5 |
+| `spaced_repetition` | `backend/features/spaced_repetition/` | (consumed by flashcards UI) | Review Scheduling | 🔮 B6 |
+| `analytics` | `backend/features/analytics/` | `frontend/features/analytics/` | Stats & Progress | ✅ |
+| `sync_engine` | `backend/features/sync_engine/` | `frontend/features/sync/` | Offline-First Sync | 🔮 B7 |
+| `notifications` | `backend/features/notifications/` | `frontend/features/notifications/` | User Notifications | 🔮 B7 |
 
 ---
 

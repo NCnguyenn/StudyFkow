@@ -42,7 +42,7 @@ Load only the rule files relevant to the task type:
 - Backend logic → `.ai/rules/backend.md`
 - Frontend logic → `.ai/rules/frontend.md`
 - Refactoring → `.ai/rules/refactor.md`
-- API changes → `.ai/architecture/api_contracts.md`
+- API changes → `backend/docs/API_CONTRACTS.md`
 
 **Step 3 — Check Impact Map:**
 Before modifying any shared system, load `.ai/architecture/impact_map.md`.

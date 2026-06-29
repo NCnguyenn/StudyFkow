@@ -38,7 +38,11 @@ from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
+import traceback
+import sys
 from backend.app.core.base import Base
+print(f"--- IMPORTING orm.py: __name__={__name__} ---", file=sys.stderr)
+traceback.print_stack(file=sys.stderr)
 
 class SessionModel(Base):
     """

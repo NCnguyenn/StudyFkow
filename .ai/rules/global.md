@@ -1,4 +1,4 @@
-﻿# global.md
+# global.md
 # 🌍 AI StudyFlow — Global Engineering Rules
 
 ## PURPOSE
@@ -178,7 +178,7 @@ Standard response structure:
 ```
 
 Detailed API contracts belong to:
-- `.ai/architecture/api_contracts.md`
+- `backend/docs/API_CONTRACTS.md`
 
 ---
 

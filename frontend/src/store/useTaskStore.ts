@@ -28,7 +28,7 @@ interface TaskState {
   error: string | null;
 
   fetchTasks: (startDate: string, endDate: string) => Promise<void>;
-  createTask: (taskData: any) => Promise<void>;
+  createTask: (taskData: any) => Promise<string | undefined>;
   moveTask: (taskId: string, newStart: string, newEnd: string) => Promise<void>;
   updateTaskState: (taskId: string, newStatus: string, failedReason?: string) => Promise<void>;
   updateTask: (taskId: string, updates: Partial<TaskResponseData>) => Promise<void>;
@@ -76,6 +76,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       }
       const newTask = (await response.json()) as TaskResponseData;
       set(state => ({ tasks: [...state.tasks, newTask], isLoading: false }));
+      return newTask.id;
     } catch (err: any) {
       console.error('[TaskStore] createTask error:', err);
       set({ error: err.message || 'Error creating task', isLoading: false });

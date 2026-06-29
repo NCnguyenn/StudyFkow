@@ -1,4 +1,4 @@
-﻿# EXECUTION_GUIDE.md
+# EXECUTION_GUIDE.md
 # 🎯 AI StudyFlow — Execution Guide
 
 ## PURPOSE
@@ -20,17 +20,19 @@ This document defines HOW AI agents must operate.
 
 # 1. MANDATORY EXECUTION ORDER
 
-Before performing ANY task, AI agents MUST follow this exact sequence:
+> **Primary workflow is defined in `.agents/AGENTS.md`** → 3-step NẠP/CODE/VERIFY.
+> This section expands the **NẠP** step for complex tasks. AGENTS.md is the canonical source.
 
-1. Read `.cursorrules`
-2. Read `.ai/AI_ENTRYPOINT.md`
-3. Read `.ai/context_loading.md`
-4. Read `.ai/memory/current_session.md`
-5. Determine current roadmap phase
-6. Load ONLY required context
-7. Check feature boundaries
-8. Check impact map if modifying existing systems
-9. Execute in the smallest safe scope possible
+Expanded NẠP sequence for complex tasks:
+
+1. Read `.ai/CONTEXT_MANIFEST.md` (routing manifest)
+2. Load Core Files listed for your agent role
+3. Read `.ai/memory/current_session.md` + `.ai/ROADMAP.md`
+4. Determine current roadmap phase & next task
+5. Load ONLY on-demand files required for that task
+6. Check feature boundaries if crossing features
+7. Check impact map if modifying existing systems
+8. Execute in the smallest safe scope possible
 
 Failure to follow execution order is considered a critical architecture violation.
 
@@ -199,9 +201,9 @@ Determine:
 
 ---
 
-## Step 3 — Backend First
+## Step 3 — Backend Foundation
 
-Backend responsibilities:
+Backend provides the foundation (runs in parallel with frontend, not sequentially):
 - business logic
 - validation
 - persistence

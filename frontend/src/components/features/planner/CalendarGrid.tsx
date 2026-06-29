@@ -96,7 +96,7 @@ const DayColumn: React.FC<DayColumnProps> = ({ dayStr, isToday, nowTop, onSlotCl
   };
 
   return (
-    <div ref={setNodeRef} onClick={handleColumnClick} className="relative border-l border-slate-200 min-h-full cursor-pointer hover:bg-slate-500/5 transition-colors">
+    <div ref={setNodeRef} onClick={handleColumnClick} className="relative border-l border-white/[0.06] min-h-full cursor-pointer hover:bg-white/[0.03] transition-colors">
       {isToday && (
         <div className="absolute left-0 right-0 z-30 pointer-events-none" style={{ top: `${nowTop}px` }}>
           <div className="h-[2px] bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.6)] relative">
@@ -193,12 +193,12 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ baseDate, onTaskMove
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="flex flex-col h-full bg-white/30 backdrop-blur-md overflow-hidden text-slate-800">
-        <div className="grid grid-cols-7 border-b border-slate-200 ml-16">
+      <div className="flex flex-col h-full overflow-hidden text-slate-100" style={{ background: 'rgba(139, 90, 43, 0.04)' }}>
+        <div className="grid grid-cols-7 border-b border-white/[0.08] ml-16">
           {weekDays.map((day, i) => (
-            <div key={i} className={`p-3 text-center border-l border-slate-200 ${isToday(day) ? 'bg-blue-500/5' : ''}`}>
-              <div className="text-xs text-slate-500">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
-              <div className={`text-lg font-bold ${isToday(day) ? 'text-blue-500' : 'text-slate-700'}`}>
+            <div key={i} className={`p-3 text-center border-l border-white/[0.06] ${isToday(day) ? 'bg-cyan-500/10' : ''}`}>
+              <div className="text-xs text-slate-400">{day.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+              <div className={`text-lg font-bold ${isToday(day) ? 'text-cyan-400' : 'text-slate-200'}`}>
                 {day.getDate()}
               </div>
             </div>
@@ -207,10 +207,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ baseDate, onTaskMove
 
         <div className="flex-1 overflow-y-auto custom-scrollbar relative">
           <div className="flex relative" style={{ height: `${24 * HOUR_HEIGHT}px` }}>
-            <div className="w-16 flex flex-col border-r border-slate-200 sticky left-0 bg-white/60 backdrop-blur-md z-20">
+            <div className="w-16 flex flex-col border-r border-white/[0.06] sticky left-0 backdrop-blur-md z-20" style={{ background: 'rgba(30, 20, 15, 0.5)' }}>
               {HOURS.map(hour => (
                 <div key={hour} className="text-xs text-slate-500 pr-2 text-right relative" style={{ height: `${HOUR_HEIGHT}px` }}>
-                  <span className="absolute -top-2 right-2 bg-white/70 shadow-sm border border-slate-100 px-1 rounded">
+                  <span className="absolute -top-2 right-2 bg-white/[0.06] border border-white/[0.08] px-1 rounded text-slate-400">
                     {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
                   </span>
                 </div>
@@ -220,7 +220,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = ({ baseDate, onTaskMove
             <div className="flex-1 grid grid-cols-7 relative">
               <div className="absolute inset-0 pointer-events-none">
                 {HOURS.map(hour => (
-                  <div key={hour} className="border-t border-slate-200 w-full" style={{ height: `${HOUR_HEIGHT}px` }} />
+                  <div key={hour} className="border-t border-white/[0.05] w-full" style={{ height: `${HOUR_HEIGHT}px` }} />
                 ))}
               </div>
 

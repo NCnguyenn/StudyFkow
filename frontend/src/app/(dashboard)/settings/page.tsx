@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Loader2, Key, Cpu, User, Sliders, Shield, Download, Trash2 } from "lucide-react";
+import { Save, Loader2, Key, Cpu, User, Sliders, Shield, Download, Trash2, Palette } from "lucide-react";
 import { fetchLlmSettings, updateLlmSettings } from "@/features/user_auth/api/settingsApi";
 import { useAppStore } from "../../../store/useAppStore";
 import { GlassCard } from "../../../components/ui/GlassCard";
+import { useProfileData } from "@/components/dashboard/useProfileData";
+import { ProfileHero } from "@/components/dashboard/ProfileHero";
 
 export default function SettingsPage() {
+  const profile = useProfileData();
   const [provider, setProvider] = useState<"OLLAMA" | "GEMINI" | "OPENAI">("OLLAMA");
   const [apiKey, setApiKey] = useState("");
   
@@ -65,7 +68,7 @@ export default function SettingsPage() {
     alert("Local cache cleared. Please reload.");
   };
 
-  if (isLoading) {
+  if (isLoading || !profile.isHydrated) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
@@ -80,24 +83,38 @@ export default function SettingsPage() {
         <p className="text-slate-500 mt-2">Personalize your study experience and AI integrations.</p>
       </div>
 
+      {/* ─── Profile Hero Banner ─── */}
+      <GlassCard className="overflow-hidden p-0 border-none shadow-lg">
+        <ProfileHero
+          displayName={profile.displayName} bioText={profile.bioText}
+          location={profile.location} occupation={profile.occupation}
+          avatarBase64={profile.avatarBase64} coverBase64={profile.coverBase64}
+          avatarShape={profile.avatarShape} avatarFit={profile.avatarFit}
+          onUpdateName={profile.updateDisplayName} onUpdateBio={profile.updateBio}
+          onUpdateLocation={profile.updateLocation} onUpdateOccupation={profile.updateOccupation}
+          onUploadAvatar={f => profile.uploadAvatar(f)} onUploadCover={f => profile.uploadCover(f)}
+          onToggleShape={() => profile.updateAvatarShape(profile.avatarShape === "circle" ? "rounded-square" : "circle")}
+          onToggleFit={() => profile.updateAvatarFit(profile.avatarFit === "cover" ? "contain" : "cover")}
+        />
+      </GlassCard>
+
       <GlassCard className={`space-y-8 transition-all duration-700 ${showSuccessGlow ? 'ring-2 ring-emerald-400/60 shadow-[0_0_30px_rgba(52,211,153,0.25)]' : ''}`}>
-        {/* Section 1: Account */}
+        {/* Section 2: Preferences */}
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2 border-b border-white/20 pb-2">
-            <User className="w-5 h-5 text-indigo-500" />
-            Account Personalization
+            <Sliders className="w-5 h-5 text-indigo-500" />
+            UI Preferences & Customization
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Display Name</label>
-              <input 
-                type="text" 
-                placeholder="Your Name" 
-                className="w-full px-4 py-2.5 bg-white/40 border border-white/50 rounded-xl text-sm shadow-sm backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700">Soul Color</label>
+          <div className="space-y-4">
+            {/* Soul Color Picker */}
+            <div className="flex items-center justify-between p-4 bg-white/30 rounded-xl border border-white/40 shadow-sm">
+              <div className="flex items-center gap-3">
+                <Palette className="w-5 h-5 text-indigo-500" />
+                <div>
+                  <p className="font-medium text-slate-800">Soul Accent Color</p>
+                  <p className="text-sm text-slate-500 font-mono uppercase">{soulColor}</p>
+                </div>
+              </div>
               <div className="flex items-center space-x-3">
                 <input 
                   type="color" 
@@ -105,19 +122,8 @@ export default function SettingsPage() {
                   onChange={(e) => setSoulColor(e.target.value)}
                   className="w-10 h-10 rounded-xl border-none cursor-pointer bg-transparent"
                 />
-                <span className="text-sm text-slate-500 uppercase">{soulColor}</span>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Section 2: Preferences */}
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2 border-b border-white/20 pb-2">
-            <Sliders className="w-5 h-5 text-indigo-500" />
-            UI Preferences
-          </h2>
-          <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-white/30 rounded-xl border border-white/40 shadow-sm">
               <div>
                 <p className="font-medium text-slate-800">Lite Mode / Battery Saver</p>

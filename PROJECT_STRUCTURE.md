@@ -12,7 +12,8 @@ AI_StudyFlow/
 │   │   ├── dependencies.md
 │   │   ├── impact_map.md
 │   │   ├── offline_sync.md
-│   │   └── session_state_machine.md
+│   │   ├── session_state_machine.md
+│   │   └── ui_architecture.md
 │   ├── features/
 │   │   ├── ai_pipeline/
 │   │   ├── auth/
@@ -46,11 +47,12 @@ AI_StudyFlow/
 │   │   ├── database_safety.md
 │   │   ├── feature_creation.md
 │   │   └── refactor_flow.md
-│   ├── AI_ENTRYPOINT.md
+│   ├── AI_ENTRYPOINT.md          ← DEPRECATED (redirect stub)
+│   ├── CONTEXT_MANIFEST.md        ← NEW: routing & context manifest
 │   ├── EXECUTION_GUIDE.md
 │   ├── ROADMAP.md
-│   ├── SYSTEM_OVERVIEW.md
-│   └── context_loading.md
+│   ├── SYSTEM_OVERVIEW.md         ← DEPRECATED (redirect stub)
+│   └── context_loading.md         ← DEPRECATED (redirect stub)
 ├── .antigravitycli/
 ├── .vscode/
 │   └── settings.json
@@ -62,11 +64,13 @@ AI_StudyFlow/
 │   │   │   ├── 2026_05_16_2030_add_planner_subjects_and_tasks.py
 │   │   │   ├── 2026_05_16_2115_add_notes_and_folders.py
 │   │   │   ├── 6182ffcbab04_add_task_id_to_sessions.py
+│   │   │   ├── b3ca8ebd4f5b_add_ui_metadata_to_folders.py
 │   │   │   ├── cc10f11a94ea_ui_overhaul_schema.py
 │   │   │   ├── cc36f4cded66_add_insights_table.py
 │   │   │   ├── dbd6bc88be81_add_subject_id_and_task_id_to_notes.py
 │   │   │   ├── deed4964a275_add_llm_settings_to_users.py
-│   │   │   └── f4ebd962a04c_update_users_table.py
+│   │   │   ├── f4ebd962a04c_update_users_table.py
+│   │   │   └── f9d4e68d221f_add_ui_metadata_to_notes.py
 │   │   ├── env.py
 │   │   └── script.py.mako
 │   ├── app/
@@ -123,6 +127,10 @@ AI_StudyFlow/
 │   │   │   │   └── schemas.py
 │   │   │   ├── infrastructure/
 │   │   │   │   └── models.py
+│   │   │   ├── tests/
+│   │   │   │   ├── unit/
+│   │   │   │   │   └── test_notes_service.py
+│   │   │   │   └── run_tests.py
 │   │   │   └── __init__.py
 │   │   ├── realtime/
 │   │   │   ├── __init__.py
@@ -178,8 +186,11 @@ AI_StudyFlow/
 │   │       └── __init__.py
 │   ├── scratch/
 │   │   └── create_user.py
+│   ├── tests/
+│   │   └── test_versions.py
 │   ├── __init__.py
 │   ├── alembic.ini
+│   ├── init_db.py
 │   └── requirements.txt
 ├── chroma_data/
 │   └── chroma.sqlite3
@@ -218,16 +229,41 @@ AI_StudyFlow/
 │   │   │   │   │   └── FloatingChat.tsx
 │   │   │   │   ├── notes/
 │   │   │   │   │   ├── toolbar/
+│   │   │   │   │   │   ├── ColorInsertGroups.tsx
+│   │   │   │   │   │   ├── FormatAlignGroups.tsx
+│   │   │   │   │   │   ├── ListBlockGroups.tsx
 │   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   ├── ToolbarButton.tsx
+│   │   │   │   │   │   ├── ToolbarContext.tsx
 │   │   │   │   │   │   └── highlight-comment-picker.tsx
+│   │   │   │   │   ├── BackgroundCanvas.tsx
+│   │   │   │   │   ├── BacklinksPanel.tsx
+│   │   │   │   │   ├── BlockDragHandle.tsx
+│   │   │   │   │   ├── CanvasStatusBar.tsx
+│   │   │   │   │   ├── CanvasToolbar.tsx
 │   │   │   │   │   ├── ChartToolbar.tsx
+│   │   │   │   │   ├── CsvImportModal.tsx
 │   │   │   │   │   ├── DiagramToolbar.tsx
 │   │   │   │   │   ├── EditorHeader.tsx
+│   │   │   │   │   ├── EditorToolbar.tsx
+│   │   │   │   │   ├── FloatingTOC.tsx
+│   │   │   │   │   ├── KeyboardShortcutsModal.tsx
 │   │   │   │   │   ├── MagicGloss.ts
 │   │   │   │   │   ├── NetworkGraphModal.tsx
+│   │   │   │   │   ├── NoteBookshelf.tsx
+│   │   │   │   │   ├── NoteCanvas.tsx
+│   │   │   │   │   ├── NoteCanvasSidebar.tsx
+│   │   │   │   │   ├── NoteCardGrid.tsx
+│   │   │   │   │   ├── NoteCoverDashboard.tsx
+│   │   │   │   │   ├── NoteDashboard.tsx
+│   │   │   │   │   ├── NotePickerModal.tsx
+│   │   │   │   │   ├── NoteSettingsPanel.tsx
+│   │   │   │   │   ├── QuickCaptureModal.tsx
+│   │   │   │   │   ├── SlashMenu.tsx
 │   │   │   │   │   ├── SpreadsheetModal.tsx
-│   │   │   │   │   ├── StudioToolbar.tsx
+│   │   │   │   │   ├── TemplatePickerModal.tsx
 │   │   │   │   │   ├── TiptapEditor.tsx
+│   │   │   │   │   ├── VersionHistoryPanel.tsx
 │   │   │   │   │   └── WorkspaceSidebar.tsx
 │   │   │   │   ├── planner/
 │   │   │   │   │   ├── BacklogSidebar.tsx
@@ -235,15 +271,23 @@ AI_StudyFlow/
 │   │   │   │   │   ├── RolloverPopup.tsx
 │   │   │   │   │   ├── SubjectCard.tsx
 │   │   │   │   │   ├── TaskBlock.tsx
-│   │   │   │   │   ├── TaskModal.tsx
 │   │   │   │   │   └── TaskQuickPanel.tsx
 │   │   │   │   ├── search/
 │   │   │   │   │   └── GlobalSearchModal.tsx
 │   │   │   │   └── tasks/
 │   │   │   │       └── TaskModal.tsx
+│   │   │   ├── room/
+│   │   │   │   ├── GlassCard.tsx
+│   │   │   │   ├── HudOverlay.tsx
+│   │   │   │   ├── InteractiveRoomEngine.tsx
+│   │   │   │   ├── ModuleTransition.tsx
+│   │   │   │   └── QuickToast.tsx
 │   │   │   └── ui/
 │   │   │       ├── GlassCard.tsx
+│   │   │       ├── RadialNavMenu.tsx
 │   │   │       ├── button.tsx
+│   │   │       ├── checkbox.tsx
+│   │   │       ├── dialog.tsx
 │   │   │       ├── input.tsx
 │   │   │       ├── popover.tsx
 │   │   │       ├── select.tsx
@@ -283,19 +327,53 @@ AI_StudyFlow/
 │   │   │       └── api/
 │   │   │           └── settingsApi.ts
 │   │   ├── hooks/
+│   │   │   ├── useBatteryPerformance.ts
+│   │   │   ├── useNoteKeyboardShortcuts.ts
 │   │   │   ├── useRealtimeEvents.ts
 │   │   │   ├── useRealtimeTaskStatus.ts
-│   │   │   └── useStrictFocus.ts
+│   │   │   ├── useStrictFocus.ts
+│   │   │   └── useTypingPerformance.ts
 │   │   ├── lib/
 │   │   │   ├── tiptap/
+│   │   │   │   ├── slash-command/
+│   │   │   │   │   ├── extension.ts
+│   │   │   │   │   └── items.ts
 │   │   │   │   ├── MentionSuggestionList.tsx
+│   │   │   │   ├── WikilinkSuggestionList.tsx
+│   │   │   │   ├── audio-block.tsx
+│   │   │   │   ├── bento-grid-block.tsx
 │   │   │   │   ├── bidirectional-link.ts
+│   │   │   │   ├── bookmark-block.tsx
+│   │   │   │   ├── calendar-widget.tsx
+│   │   │   │   ├── callout-block.tsx
+│   │   │   │   ├── card-grid-block.tsx
 │   │   │   │   ├── chart-block.tsx
+│   │   │   │   ├── code-block-enhanced.tsx
+│   │   │   │   ├── columns-block.tsx
+│   │   │   │   ├── custom-image.tsx
 │   │   │   │   ├── diagram-block.tsx
+│   │   │   │   ├── embed-block.tsx
+│   │   │   │   ├── flashcard-block.tsx
+│   │   │   │   ├── focus-reading.ts
 │   │   │   │   ├── font-size.ts
 │   │   │   │   ├── inline-comment.ts
+│   │   │   │   ├── math-block.tsx
 │   │   │   │   ├── mention-suggestion.ts
-│   │   │   │   └── smart-mention.ts
+│   │   │   │   ├── page-node.ts
+│   │   │   │   ├── page-stamp-link.ts
+│   │   │   │   ├── pagination-plugin.ts
+│   │   │   │   ├── pdf-block.tsx
+│   │   │   │   ├── profile-card-block.tsx
+│   │   │   │   ├── quiz-block.tsx
+│   │   │   │   ├── section-block.tsx
+│   │   │   │   ├── smart-mention.ts
+│   │   │   │   ├── smart-task-node.tsx
+│   │   │   │   ├── smart-timer-node.tsx
+│   │   │   │   ├── tab-group.tsx
+│   │   │   │   ├── timestamp-link.ts
+│   │   │   │   ├── toggle-block.tsx
+│   │   │   │   ├── wikilink-suggestion.ts
+│   │   │   │   └── youtube-block.tsx
 │   │   │   ├── api-utils.ts
 │   │   │   ├── audioDb.ts
 │   │   │   ├── calendar-utils.ts
@@ -309,7 +387,8 @@ AI_StudyFlow/
 │   │   │   └── useTaskStore.ts
 │   │   └── types/
 │   │       ├── notes.ts
-│   │       └── planner.ts
+│   │       ├── planner.ts
+│   │       └── room.ts
 │   ├── components.json
 │   ├── next-env.d.ts
 │   ├── next.config.js
@@ -324,24 +403,38 @@ AI_StudyFlow/
 │   ├── db_check.py
 │   ├── e2e_test.js
 │   ├── generate_tree.py
+│   ├── run_unit_tests.py
+│   ├── test_editor.py
 │   ├── test_insights_flow.py
-│   └── test_note_upload.py
+│   ├── test_note_upload.py
+│   ├── test_pagination_result.png
+│   ├── test_script.py
+│   └── verify_phase3_phase4.py
 ├── scripts/
 │   ├── archive_code.py
 │   ├── archive_md.py
 │   ├── archive_md_v2.py
 │   ├── archive_notes.py
 │   ├── consolidate_docs.py
-│   └── extract_note_module.py
+│   ├── extract_note_module.py
+│   ├── mass_extract.py
+│   └── test_notes.py
 ├── static_cdn/
 │   └── note_images/
 │       └── c65ab3b8-eede-433b-9583-8f67a9c80c38.png
 ├── tests/
+├── .agents/
+│   └── AGENTS.md
 ├── .cursorrules
 ├── .env
 ├── .env.example
 ├── .gitignore
+├── DESIGN.md
+├── PRODUCT.md
 ├── PROJECT_STRUCTURE.md
+├── TEAM_BOUNDARIES.md
+├── ANTIGRAVITY_PROMPT.md
+├── JULES_PROMPT.md
 ├── SYSTEM_UPGRADE_SPEC.md
 ├── db_hotfix.py
 ├── docker-compose.yml

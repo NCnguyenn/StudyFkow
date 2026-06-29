@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { useSubjectStore } from "@/store/useSubjectStore";
+import { useNoteStore } from "@/store/useNoteStore";
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -66,9 +67,11 @@ interface GlobalSearchModalProps {
 
 // ─── Component ──────────────────────────────────────────────────
 
+const EMPTY_ARRAY: any[] = [];
+
 export default function GlobalSearchModal({
-  noteItems = [],
-  taskItems = [],
+  noteItems = EMPTY_ARRAY,
+  taskItems = EMPTY_ARRAY,
   onTaskSelect,
   onNoteSelect,
 }: GlobalSearchModalProps) {
@@ -102,6 +105,9 @@ export default function GlobalSearchModal({
     [router, setGlobalSearchOpen]
   );
 
+  const notes = useNoteStore((s) => s.notes);
+  const setActiveNote = useNoteStore((s) => s.setActiveNote);
+
   // Fetch omni-data when opened
   useEffect(() => {
     if (isGlobalSearchOpen) {
@@ -116,13 +122,6 @@ export default function GlobalSearchModal({
           const { fetchTasks } = await import("@/features/task_management/api/taskApi");
           const fetchedTasks = await fetchTasks(start.toISOString(), end.toISOString());
           setInternalTasks(fetchedTasks);
-
-          const notesStr = localStorage.getItem("studyflow_notes_v1");
-          if (notesStr) {
-            const parsed = JSON.parse(notesStr);
-            const notesArr = Object.values(parsed.notes || {});
-            setInternalNotes(notesArr);
-          }
         } catch (e) {
           console.error("OmniSearch sync error", e);
         }
@@ -157,7 +156,7 @@ export default function GlobalSearchModal({
 
     // Active data
     const activeTasks = taskItems.length > 0 ? taskItems : internalTasks;
-    const activeNotes = noteItems.length > 0 ? noteItems : internalNotes;
+    const activeNotes = noteItems.length > 0 ? noteItems : Object.values(notes);
 
     // Subjects
     subjects.forEach((subj) => {
@@ -204,7 +203,12 @@ export default function GlobalSearchModal({
           : "Note",
         icon: <FileText className="w-4 h-4 text-amber-400" />,
         action: () => {
-          onNoteSelect?.(note.id);
+          if (onNoteSelect) {
+            onNoteSelect(note.id);
+          } else {
+            setActiveNote(note.id);
+            navigate("/notes");
+          }
           setGlobalSearchOpen(false);
         },
       });
@@ -230,7 +234,7 @@ export default function GlobalSearchModal({
     });
 
     return items;
-  }, [subjects, taskItems, noteItems, internalTasks, internalNotes, navigate, onTaskSelect, onNoteSelect, setGlobalSearchOpen]);
+  }, [subjects, taskItems, noteItems, internalTasks, notes, navigate, onTaskSelect, onNoteSelect, setGlobalSearchOpen, setActiveNote]);
 
   if (!isGlobalSearchOpen) return null;
 

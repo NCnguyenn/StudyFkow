@@ -253,7 +253,7 @@ After completing any Tier 2 or Tier 3 refactor:
 - [ ] Impact map updated in `.ai/architecture/impact_map.md`.
 - [ ] Change logged in `.ai/logs/ai_changes.md`.
 - [ ] Deprecated code paths are marked with a `# DEPRECATED: remove after YYYY-MM-DD` comment.
-- [ ] API contract updated in `.ai/architecture/api_contracts.md` if applicable.
+- [ ] API contract updated in `backend/docs/API_CONTRACTS.md` if applicable.
 - [ ] Migration files reviewed for reversibility.
 
 *End of Refactor Rules — Last reviewed: 2026-05-07*

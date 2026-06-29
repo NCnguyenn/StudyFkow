@@ -49,7 +49,7 @@ export const ZenClock = () => {
           cx="50%" 
           cy="50%" 
           r={radius} 
-          stroke="rgba(0, 0, 0, 0.05)" 
+          stroke="rgba(255, 255, 255, 0.06)" 
           strokeWidth="4" 
           fill="none" 
         />
@@ -72,7 +72,7 @@ export const ZenClock = () => {
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className={`text-6xl lg:text-7xl font-extralight tracking-[0.15em] tabular-nums transition-colors duration-1000 ${phase === 'WARNING' ? 'text-red-500' : 'text-slate-800'}`}>
+        <span className={`text-6xl lg:text-7xl font-extralight tracking-[0.15em] tabular-nums transition-colors duration-1000 ${phase === 'WARNING' ? 'text-red-500' : 'text-slate-100'}`}>
           {minutes}:{seconds}
         </span>
         <span className={`text-xs font-semibold tracking-[0.3em] uppercase mt-4 transition-colors duration-1000 ${

@@ -384,4 +384,26 @@ Entries older than 6 months that are fully resolved and have no ongoing architec
 **Breaking Changes:** NO
 **Rollback Procedure:** Revert API clients to use native `fetch` and remove the `fetchWithAuth` wrapper.
 
+---
+
+### TASK-014 — Phase R0 Audit, Dependency Alignment & Asset Directory Setup
+**Completed:** 2026-06-24
+**Type:** INFRASTRUCTURE / FEATURE
+**Agent/Author:** AI (Antigravity)
+**Task Description:** Completed a comprehensive design token audit and resolved the remaining Phase R0 gaps. Installed required UI packages (`gsap`, `lottie-react`, and `canvas-confetti`) along with TS declarations (`@types/canvas-confetti`) using `--legacy-peer-deps` to align with the frontend React 19 / Tiptap workspace configuration. Generated empty subdirectory structures for the sprite layers (`/public/assets/rooms/home/bg/`, `fg/`, and `sky/`) with `.gitkeep` files to ensure Git tracking. Verified build stability by compiling the Next.js app successfully.
+**Files Created:**
+- `frontend/public/assets/rooms/home/bg/.gitkeep`
+- `frontend/public/assets/rooms/home/fg/.gitkeep`
+- `frontend/public/assets/rooms/home/sky/.gitkeep`
+**Files Modified:**
+- `frontend/package.json`
+- `frontend/package-lock.json`
+**Files Deleted:** N/A
+**Tests Added:** Run `npm run build` validation test (passed in 7.5s)
+**API Changes:** N/A
+**DB Changes:** N/A
+**Architectural Impact:** Completed all prerequisite UI design foundations, packages, and folders required to support Phase R1's asset generation and R2's 6-layer depth perspective rendering.
+**Breaking Changes:** NO
+**Rollback Procedure:** Revert `package.json`, delete `/public/assets/rooms/home/bg/`, `fg/`, `sky/` directories, and run `npm install`.
+
 

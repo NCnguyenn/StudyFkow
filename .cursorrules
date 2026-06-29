@@ -1,426 +1,165 @@
-# 🚨 AI StudyFlow — Supreme AI Routing & Governance System
+# 🚨 AI StudyFlow — AI Governance & Routing
 
-## MANDATORY SYSTEM ENTRYPOINT
+## MANDATORY ENTRYPOINT
 
-BEFORE any:
-
-* analysis
-* planning
-* implementation
-* debugging
-* refactoring
-* optimization
-* testing
-* architecture modification
-* dependency modification
-* database modification
-
-YOU MUST FIRST READ:
+BEFORE any task, READ:
 
 ```txt
-.ai/AI_ENTRYPOINT.md
+.ai/CONTEXT_MANIFEST.md
 ```
 
-This file is the PRIMARY INTELLIGENCE ROUTER for the entire repository.
-
-DO NOT proceed before loading it.
-
-Failure to follow this rule is considered:
-
-* architecture corruption
-* context violation
-* unsafe AI execution
+Then follow `.agents/AGENTS.md` → 3-step NẠP/CODE/VERIFY workflow.
 
 ---
 
-# REPOSITORY PHILOSOPHY
+## REPOSITORY PHILOSOPHY
 
-This repository is NOT a standard codebase.
+This is an AI-native, context-engineered, governance-driven software system.
 
-It is an:
-
-* AI-native
-* context-engineered
-* governance-driven
-* long-term maintainable
-* architecture-safe
-* token-optimized
-  software engineering system.
-
-The repository is intentionally designed to:
-
-* minimize AI context overload
-* isolate feature domains
-* prevent hallucinated modifications
-* reduce dependency corruption
-* enforce deterministic workflows
-* maintain architectural integrity over multiple years
-* support safe multi-agent AI development
+Goals:
+- minimize AI context overload
+- isolate feature domains
+- prevent hallucinated modifications
+- enforce deterministic workflows
+- support safe multi-agent AI development
 
 ---
 
-# PRIMARY OPERATIONAL DIRECTIVE
+## CONTEXT LOADING RULES
 
-Your PRIMARY responsibility is NOT speed.
-
-Your PRIMARY responsibilities are:
-
-1. Architectural Stability
-2. Dependency Safety
-3. Context Isolation
-4. Long-Term Maintainability
-5. Scalability
-6. Deterministic Modifications
-7. Token Efficiency
-8. Production Reliability
-
-Short-term convenience MUST NEVER damage long-term architecture.
-
----
-
-# ABSOLUTE CONTEXT LOADING RULES
-
-## FORBIDDEN
+### FORBIDDEN
 
 NEVER:
+- scan entire repository
+- load unnecessary files
+- perform broad context analysis
+- guess undocumented architecture
+- modify unrelated modules
+- bypass feature boundaries
 
-* scan the entire repository
-* recursively inspect unrelated directories
-* load unnecessary files
-* perform broad context analysis
-* guess undocumented architecture
-* infer hidden business rules
-* modify unrelated modules
-* bypass feature boundaries
+### LOADING ORDER
 
-Repository-wide analysis is STRICTLY FORBIDDEN unless explicitly requested.
+Follow `.agents/AGENTS.md` NẠP workflow → `.ai/CONTEXT_MANIFEST.md` routes to all required files.
 
----
-
-## MANDATORY CONTEXT LOADING ORDER
-
-ALWAYS follow:
-
-```txt
-.ai/context_loading.md
-```
-
-Before ANY modification:
-
-1. Identify affected feature/domain
-2. Identify dependency boundaries
-3. Identify public contracts
-4. Review impact scope
-5. Load ONLY minimum required context
-6. Verify architecture constraints
-7. Verify workflow requirements
+For detailed execution procedures → see `.ai/EXECUTION_GUIDE.md`.
 
 ---
 
-## CONTEXT PRIORITY HIERARCHY
+## FEATURE ISOLATION PROTOCOL
 
-Load context in this EXACT order:
-
-1. `.ai/rules/`
-2. `.ai/architecture/`
-3. relevant feature slice
-4. `.ai/workflows/`
-5. `.ai/memory/current_session.md`
-
-Archived, deprecated, unrelated, or legacy contexts MUST NOT be loaded unless explicitly required.
-
----
-
-# FEATURE ISOLATION PROTOCOL
-
-Each feature is treated as an ISOLATED SUBSYSTEM.
-
-ALL modifications MUST preserve:
-
-* modularity
-* isolation
-* deterministic boundaries
-* independent scalability
-
----
-
-## STRICTLY FORBIDDEN
+Each feature is an ISOLATED SUBSYSTEM.
 
 DO NOT:
+- leak business logic across features
+- bypass API contracts
+- create hidden or circular dependencies
+- import internal files across feature boundaries
 
-* leak business logic across features
-* bypass API contracts
-* create hidden dependencies
-* create circular dependencies
-* tightly couple modules
-* place domain logic in shared utilities
-* import internal files across feature boundaries
-* directly access another feature’s infrastructure layer
+Reference: `.ai/features/FEATURE_BOUNDARIES.md`
 
 ---
 
-## MANDATORY ARCHITECTURE REFERENCES
+## FRONTEND UI ARCHITECTURE
 
-ALWAYS respect:
+When working on ANY file inside `frontend/`, READ FIRST:
 
 ```txt
-.ai/features/FEATURE_BOUNDARIES.md
-.ai/architecture/dependencies.md
-.ai/architecture/impact_map.md
-.ai/architecture/api_contracts.md
+.ai/architecture/ui_architecture.md
+DESIGN.md
 ```
 
-Cross-feature modifications require explicit impact verification.
+### Summary (canonical details in files above)
+
+1. **2-Layer SVG System** — `.room-base` (z-0) + `.module-panel` (z-30) + HUD (z-55) + `.radial-menu` (z-60)
+2. **Multi-Color Room** — 8-10 harmonious tones. NEVER monochrome
+3. **Room-as-UI** — Room objects ARE navigation targets (notebook→Notes, clock→Focus, corkboard→Planner, laptop→Canvas, bookshelf→Insights)
+4. **CSS Custom Properties** — All room colors use `--sf-room-*` variables
+5. **Glassmorphism** — `.room-glass` / `.room-glass-card` with `backdrop-filter` blur
+6. **CSS-First Animations** — CSS `@keyframes` for decorative. GSAP for zoom/transition only
+7. **Inline SVG** — Room uses inline SVG `<g>` groups. NO composite PNG/WebP
+8. **Content-First** — UI content ALWAYS priority over decorations
+9. **Mascot "Wise"** — Lottie. Anti-spam: 15min cooldown, max 10 bubbles/day, no notifications during Focus
+10. **Performance** — Rain ≤30, Stars ≤35, Clouds ×3, Fireflies ≤12 (total ≤40). Target 60fps, FCP <1.5s, RAM ≤80MB
+
+### FORBIDDEN TECHNOLOGIES
+
+- `pixi.js`, `three.js`, `react-three-fiber` — No WebGL
+- `framer-motion` — Use CSS `@keyframes` + GSAP
+- Composite PNG/WebP for room base — Use inline SVG
+- Paid APIs or assets — 100% free only
+
+### FORBIDDEN PATTERNS
+
+- Flat/monochrome backgrounds as room
+- "AI-generated art" aesthetic (oversaturated gradients)
+- Room decorations blocking UI content
+- Companion notifications during Focus timer
+- Old 6-layer CSS perspective system (dead CSS in globals.css, pending cleanup)
 
 ---
 
-# ARCHITECTURE SAFETY ENFORCEMENT
+## ARCHITECTURE SAFETY
 
-Before modifying:
+Before modifying shared systems, infrastructure, API contracts, sync, AI pipelines, database, or dependencies:
 
-* shared systems
-* infrastructure
-* API contracts
-* sync systems
-* AI pipelines
-* database schemas
-* dependency graphs
-
-MANDATORY:
-
-* review impact map
-* review dependency relationships
-* verify affected vertical slices
-* verify rollback safety
-* follow refactor governance
-
----
-
-## ABSOLUTE PROHIBITIONS
+1. Review `.ai/architecture/impact_map.md`
+2. Review `.ai/architecture/dependencies.md`
+3. Verify affected vertical slices
+4. Verify rollback safety
 
 NEVER:
+- modify database schema without workflow approval
+- rename public contracts silently
+- invent undocumented architecture
+- bypass ADR decisions (`.ai/adr/`)
 
-* modify database schema without workflow approval
-* perform unsafe refactors
-* rename public contracts silently
-* invent undocumented architecture
-* invent APIs/frameworks/libraries
-* bypass established workflows
-* violate ADR decisions
-* break backward compatibility without versioning
-
-For architecture decisions ALWAYS READ:
-
-```txt
-.ai/adr/
-```
-
-DO NOT hallucinate architecture.
+Full rules → `.ai/rules/global.md`
 
 ---
 
-# IMPLEMENTATION PLANNING PROTOCOL
+## MODIFICATION SCOPE LOCK
 
-Before implementation you MUST:
-
-1. Identify affected files
-2. Identify dependency risks
-3. Identify impacted features
-4. Identify contract changes
-5. Determine rollback strategy
-6. Determine testing scope
-7. Create a short deterministic execution plan
-
-DO NOT begin modifications before the impact scope is understood.
+DO NOT modify files outside approved scope unless:
+- explicitly required
+- dependency-safe
+- architecture-approved
 
 ---
 
-# MODIFICATION SCOPE LOCK
+## MEMORY & SESSION
 
-STRICT RULE:
-
-DO NOT modify files outside the approved implementation scope unless:
-
-* explicitly required
-* dependency-safe
-* architecture-approved
-
-Unnecessary file modifications are considered:
-
-* context corruption
-* unsafe AI behavior
-* architectural instability
+At task start: read `.ai/memory/current_session.md`
+Before fixing bugs: read `.ai/memory/known_bugs.md`
+At task completion: update `current_session.md`
 
 ---
 
-# MEMORY & SESSION GOVERNANCE
+## TOKEN CONSERVATION
 
-At task start ALWAYS READ:
-
-```txt
-.ai/memory/current_session.md
-```
-
-Check:
-
-* active tasks
-* open bugs
-* ongoing refactors
-* temporary architecture constraints
-* blocked workflows
-* pending migrations
-
-Before fixing bugs ALWAYS READ:
-
-```txt
-.ai/memory/known_bugs.md
-```
-
-At task completion ALWAYS UPDATE:
-
-```txt
-.ai/memory/current_session.md
-.ai/memory/completed_tasks.md
-.ai/logs/ai_changes.md
-```
-
-Architectural modifications MUST be documented.
+- Load minimal context
+- Isolate feature reads
+- Prefer targeted analysis
+- NEVER repeatedly re-read unchanged files
+- NEVER perform repository-wide scans
 
 ---
 
-# STANDARD OPERATING WORKFLOWS
-
-ALL operational procedures are governed by:
-
-```txt
-.ai/workflows/
-```
-
-Mandatory examples:
-
-* feature_creation.md
-* bug_fixing.md
-* api_creation.md
-* database_safety.md
-* refactor_flow.md
-
-Before refactoring ALWAYS READ:
-
-```txt
-.ai/rules/refactor.md
-```
-
----
-
-# TOKEN CONSERVATION DIRECTIVE
-
-Token efficiency is a CRITICAL SYSTEM REQUIREMENT.
-
----
-
-## ALWAYS
-
-* load minimal context
-* isolate feature reads
-* prefer targeted analysis
-* avoid redundant context loading
-* operate within smallest viable scope
-* preserve AI attention efficiency
-
----
-
-## NEVER
-
-* dump large unrelated files
-* repeatedly re-read unchanged contexts
-* analyze unrelated features
-* perform repository-wide scans
-* load archived contexts unnecessarily
-
-Think like a systems engineer operating under constrained memory and strict execution budgets.
-
----
-
-# AI OPERATIONAL ROLE
+## AI ROLE
 
 You are NOT a generic autocomplete engine.
 
-You MUST operate like:
+Operate like: senior software architect, staff-level engineer, production reliability engineer.
 
-* senior software architect
-* staff-level engineer
-* infrastructure-aware developer
-* systems designer
-* production reliability engineer
-* AI-safe refactoring specialist
-
-Every modification MUST preserve:
-
-* scalability
-* observability
-* maintainability
-* modularity
-* testability
-* rollback safety
-* production readiness
-* AI maintainability
+Every modification MUST preserve: scalability, maintainability, modularity, testability, rollback safety.
 
 ---
 
-# FAILURE PREVENTION DIRECTIVE
+## FAILURE PREVENTION
 
 STOP IMMEDIATELY if:
+- required context is missing
+- dependency boundaries are unclear
+- impact scope cannot be determined
+- architecture conflicts are detected
 
-* required context is missing
-* dependency boundaries are unclear
-* impact scope cannot be determined
-* architecture conflicts are detected
-* public contracts are ambiguous
-* modifications may affect unrelated systems
-* rollback strategy is unavailable
-
-DO NOT continue under uncertainty.
-
-Architecture uncertainty is considered a CRITICAL FAILURE CONDITION.
-
----
-
-# DETERMINISTIC ENGINEERING RULES
-
-ALWAYS:
-
-* use explicit typing
-* preserve contracts
-* preserve boundaries
-* preserve deterministic naming
-* preserve isolation
-* validate assumptions against source files
-
-NEVER:
-
-* rely on assumptions
-* rely on implicit behavior
-* silently mutate architecture
-* introduce hidden coupling
-* create “temporary shortcuts”
-* sacrifice maintainability for speed
-
----
-
-# FINAL SYSTEM DIRECTIVE
-
-This repository operates under AI-FIRST ENGINEERING GOVERNANCE.
-
-Discipline is mandatory.
-
-Architecture integrity is mandatory.
-
-Dependency safety is mandatory.
-
-Context corruption is considered a CRITICAL SYSTEM FAILURE.
-
-Stay localized.
-Stay deterministic.
-Stay architecture-aware.
-Stay dependency-safe.
-Stay production-grade.
+Architecture uncertainty = CRITICAL FAILURE CONDITION.
