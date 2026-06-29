@@ -33,7 +33,7 @@ Reason for migration:
 
 Migration status:
 1. ✅ Documentation alignment (updating all .md files to R5.0 spec)
-2. ❌ SVG room scene creation (draw room objects as inline SVG)
+2. ✅ SVG room scene creation (draw room objects as inline SVG)
 3. ❌ InteractiveRoomEngine refactor (swap <img> for inline <svg>)
 4. ❌ CSS animation integration (per-object animations)
 5. ❌ Testing & verification
@@ -118,6 +118,9 @@ Migration status:
 | **R4.0-P6** | CSS Overhaul (2-Layer System) | ✅ Complete |
 | **R4.0-P7** | Day/Night CSS Filter Adaptation | ✅ Complete |
 | **R4.0-P8** | Hover Animations + Mobile Fallback | ✅ Complete |
+| **R5.0-P1** | Architecture design (ui_architecture.md update) | ✅ Complete |
+| **R5.0-P2** | SVG Component Decomposition (svg/objects/) | ✅ Complete |
+| **R5.0-P3** | InteractiveRoomEngine refactor (swap img for svg) | ❌ Not started |
 | **R6-NEW** | Weather & Ambient Effects | ❌ Not started (needs re-scoping for SVG) |
 | **R8-NEW** | Room Widgets (Clock, Sticky Notes, Chalkboard) | ❌ Not started |
 | **R9-NEW** | Mascot "Wise" Owl (Lottie) | ❌ Not started |
