@@ -48,6 +48,7 @@ export function DeskItems() {
         <g id="steam-group" opacity="0.6">
           <path d="M 590,760 Q 580,730 600,700 T 590,650" fill="none" stroke="var(--sf-room-paper)" strokeWidth="3" strokeLinecap="round" />
           <path d="M 610,750 Q 620,720 600,690 T 610,640" fill="none" stroke="var(--sf-room-paper)" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 600,755 Q 610,725 595,695 T 605,645" fill="none" stroke="var(--sf-room-paper)" strokeWidth="2.5" strokeLinecap="round" />
         </g>
       </g>
 

@@ -400,17 +400,39 @@
 
 /* Desk lamp flicker — subtle opacity variation */
 @keyframes room-flicker {
-  0%   { opacity: 0.85; }
-  25%  { opacity: 1.0; }
-  50%  { opacity: 0.9; }
-  75%  { opacity: 1.0; }
-  100% { opacity: 0.85; }
+  0%   { opacity: calc(var(--sf-lamp-opacity, 0) * 0.85); }
+  25%  { opacity: calc(var(--sf-lamp-opacity, 0) * 1.0); }
+  50%  { opacity: calc(var(--sf-lamp-opacity, 0) * 0.9); }
+  75%  { opacity: calc(var(--sf-lamp-opacity, 0) * 1.0); }
+  100% { opacity: calc(var(--sf-lamp-opacity, 0) * 0.85); }
 }
 
 /* Page enter animation — slide up + fade in */
 @keyframes room-fade-in {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── R5.0-P4: SVG Animation Integration ─── */
+#plant-desk-group {
+  transform-origin: 460px 660px;
+  animation: room-sway 6s ease-in-out infinite;
+}
+
+#plant-bookshelf {
+  transform-origin: 140px 605px;
+  animation: room-sway 7s ease-in-out infinite alternate;
+}
+
+#steam-group path {
+  animation: room-steam 4s infinite linear;
+}
+#steam-group path:nth-child(1) { animation-delay: 0s; }
+#steam-group path:nth-child(2) { animation-delay: 1.3s; }
+#steam-group path:nth-child(3) { animation-delay: 2.6s; }
+
+#lamp-glow {
+  animation: room-flicker 3s infinite;
 }
 
 /* ─── Vignette Overlay ─── */
@@ -551,54 +573,34 @@
 /* ─── Hotspot Zones ─── */
 /* Invisible interactive areas positioned over room objects */
 .room-hotspot {
-  position: absolute;
   cursor: pointer;
-  border: none;
-  background: transparent;
-  padding: 0;
-  border-radius: 8px;
-  z-index: 5;
   transition: all 300ms ease;
 }
 
-/* Hover effects — natural object feedback, no tooltips */
-.room-hotspot--brighten::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0);
-  transition: background 300ms ease, box-shadow 300ms ease;
-  pointer-events: none;
-}
-.room-hotspot--brighten:hover::after {
-  background: rgba(255, 248, 230, 0.12);
-  box-shadow: 0 0 20px rgba(245, 166, 35, 0.15);
+/* --- SVG Hotspot Hover Effects --- */
+svg:has(#hotspot-notes:hover) #notebook-group {
+  filter: brightness(1.2) drop-shadow(0 0 8px var(--sf-glow-lavender));
+  transition: filter 0.3s ease;
 }
 
-.room-hotspot--pulse {
-  animation: none;
-}
-.room-hotspot--pulse:hover {
-  animation: hotspot-pulse 1.5s ease-in-out infinite;
+svg:has(#hotspot-focus:hover) #clock-group {
+  filter: drop-shadow(0 0 12px var(--sf-room-lamp-halo));
+  transition: filter 0.3s ease;
 }
 
-.room-hotspot--glow::after {
-  content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  box-shadow: 0 0 0 rgba(129, 140, 248, 0);
-  transition: box-shadow 400ms ease;
-  pointer-events: none;
-}
-.room-hotspot--glow:hover::after {
-  box-shadow: 0 0 24px rgba(129, 140, 248, 0.2), 0 0 8px rgba(245, 166, 35, 0.1);
+svg:has(#hotspot-planner:hover) #corkboard-group {
+  filter: drop-shadow(0 0 10px var(--sf-glow-peach));
+  transition: filter 0.3s ease;
 }
 
-@keyframes hotspot-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+svg:has(#hotspot-canvas:hover) #laptop-group {
+  filter: brightness(1.15) drop-shadow(0 0 10px var(--sf-glow-sky));
+  transition: filter 0.3s ease;
+}
+
+svg:has(#hotspot-insights:hover) #bookshelf-group {
+  filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.05));
+  transition: filter 0.3s ease;
 }
 
 /* ─── Module Panel ─── */
