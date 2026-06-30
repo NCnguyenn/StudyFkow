@@ -19,9 +19,9 @@ Session Focus : Architecture Migration — R4.0 Composite PNG → R5.0 Inline SV
 
 ## CURRENT STATUS
 
-**R5.0 "SVG Room" architecture migration IN PROGRESS.**
+**R5.0 "SVG Room" architecture migration COMPLETED.**
 
-The room rendering system is being migrated from R4.0 (2 composite PNG images: `room_base.png` + `desk_zone.png`) to R5.0 (inline SVG elements drawn via code, styled with CSS custom properties, animated with CSS transforms).
+The room rendering system has been successfully migrated from R4.0 (2 composite PNG images: `room_base.png` + `desk_zone.png`) to R5.0 (inline SVG elements drawn via code, styled with CSS custom properties, animated with CSS transforms).
 
 Reason for migration:
 - Composite PNG images cannot support per-object animations (lamp flicker, plant sway, etc.)
@@ -34,9 +34,9 @@ Reason for migration:
 Migration status:
 1. ✅ Documentation alignment (updating all .md files to R5.0 spec)
 2. ✅ SVG room scene creation (draw room objects as inline SVG)
-3. ❌ InteractiveRoomEngine refactor (swap <img> for inline <svg>)
-4. ❌ CSS animation integration (per-object animations)
-5. ❌ Testing & verification
+3. ✅ InteractiveRoomEngine refactor (swap <img> for inline <svg>)
+4. ✅ CSS animation integration (per-object animations)
+5. ✅ Testing & verification & cleanup
 
 Git Sync Status:
 - ✅ Fetched and merged latest code from remote `origin/main` (including Jules' backend B1 bugfixes, AI pipeline interfaces, and chat RAG service enhancements).
@@ -125,8 +125,10 @@ Git Sync Status:
 | **R4.0-P8** | Hover Animations + Mobile Fallback | ✅ Complete |
 | **R5.0-P1** | Architecture design (ui_architecture.md update) | ✅ Complete |
 | **R5.0-P2** | SVG Component Decomposition (svg/objects/) | ✅ Complete |
-| **R5.0-P3** | InteractiveRoomEngine refactor (swap img for svg) | ❌ Not started |
-| **R6-NEW** | Weather & Ambient Effects | ❌ Not started (needs re-scoping for SVG) |
+| **R5.0-P3** | InteractiveRoomEngine refactor (swap img for svg) | ✅ Complete |
+| **R5.0-P4** | CSS Animation Integration | ✅ Complete |
+| **R5.0-P5** | Testing & Cleanup | ✅ Complete |
+| **R6-NEW** | Weather & Ambient Effects | ❌ Not started |
 | **R8-NEW** | Room Widgets (Clock, Sticky Notes, Chalkboard) | ❌ Not started |
 | **R9-NEW** | Mascot "Wise" Owl (Lottie) | ❌ Not started |
 | **R10-NEW** | Gamification (XP, Streak, Levels) | ❌ Not started |
@@ -147,8 +149,8 @@ Git Sync Status:
 
 ### Assets
 - `src/components/room/svg/` — SVG room scene components (to be created)
-- `public/assets/rooms/home/room_base.png` — ⚠️ DEPRECATED in R5.0 (replaced by inline SVG, pending deletion)
-- `public/assets/rooms/home/desk_zone.png` — ⚠️ DEPRECATED in R5.0 (replaced by inline SVG, pending deletion)
+- `public/assets/rooms/home/room_base.png` — ✅ DELETED in R5.0-P5
+- `public/assets/rooms/home/desk_zone.png` — ✅ DELETED in R5.0-P5
 
 ### Styling
 - `src/app/globals.css` — CSS layers, room tokens, glassmorphism, z-index map
@@ -159,7 +161,7 @@ Git Sync Status:
 
 - **Backend:** FastAPI + PostgreSQL + JWT Auth — Stable, NO CHANGES.
 - **Frontend:** Next.js App Router + Tailwind CSS v4 + TypeScript.
-- **Room System:** Migrating from v4.0 (Composite PNG) → v5.0 (Inline SVG + CSS). Documentation updated. Code migration pending.
+- **Room System:** Successfully migrated from v4.0 (Composite PNG) to v5.0 (Inline SVG + CSS). Old raster assets deleted.
 - **Stores:** Room-specific stores (`useRoomStore`, `useWeatherStore`, `useCompanionStore`, `useGamificationStore`) NOT yet created. Day/night logic is inline in `InteractiveRoomEngine.tsx`.
 - **Build:** Last verified `tsc --noEmit` passed.
 
