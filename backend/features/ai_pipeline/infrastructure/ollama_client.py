@@ -38,3 +38,21 @@ class OllamaProvider(LLMProvider):
 Keep it under 2 sentences.{constraint_str}
 Context: {json.dumps({k: v for k, v in payload.items() if k != "negative_constraints"})}
 Insight:"""
+
+    async def generate_chat_response(self, prompt: str) -> str:
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(
+                    self.base_url,
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False
+                    },
+                    timeout=60.0
+                )
+                response.raise_for_status()
+                data = response.json()
+                return data.get("response", "Could not generate response.").strip()
+            except Exception as e:
+                return f"Error communicating with local Ollama instance: {e}"

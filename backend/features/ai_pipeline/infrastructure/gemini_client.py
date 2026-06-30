@@ -38,3 +38,22 @@ class GeminiProvider(LLMProvider):
 Keep it under 2 sentences.{constraint_str}
 Context: {json.dumps({k: v for k, v in payload.items() if k != "negative_constraints"})}
 Insight:"""
+
+    async def generate_chat_response(self, prompt: str) -> str:
+        if not self.api_key:
+            return "Error: Gemini API key is missing."
+
+        payload = {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }]
+        }
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(self.url, json=payload, timeout=30.0)
+                response.raise_for_status()
+                data = response.json()
+                return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            except Exception as e:
+                return f"Error communicating with Gemini API: {e}"

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Request, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
+from datetime import datetime, timezone
 import uuid
 
 from backend.app.core.database import get_write_session
@@ -28,7 +29,7 @@ def _create_envelope(data: Any = None) -> dict:
         "data": data,
         "meta": {
             "trace_id": str(uuid.uuid4()),
-            "timestamp": "2026-05-08T14:57:40Z",
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "version": "v1"
         }
     }
