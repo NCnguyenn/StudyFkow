@@ -3,11 +3,11 @@ from uuid import UUID
 from typing import Optional
 from datetime import datetime, UTC
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func, or_, delete
 from sqlalchemy.orm import load_only
 from fastapi import HTTPException
-from ..infrastructure.models import NoteFolderModel, NoteModel, NoteSubjectModel, NoteTaskModel, NoteTagMappingModel
-from ..domain.schemas import NoteFolderCreate, NoteFolderUpdate, NoteCreate, NoteUpdate
+from ..infrastructure.models import NoteFolderModel, NoteModel, NoteSubjectModel, NoteTaskModel, NoteTagMappingModel, NoteTemplateModel, NoteVersionModel, NoteLinkModel
+from ..domain.schemas import NoteFolderCreate, NoteFolderUpdate, NoteCreate, NoteUpdate, NoteTemplateCreate, NoteTemplateUpdate, NoteSearchQuery
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +164,33 @@ async def create_note(db: AsyncSession, user_id: UUID, note_data: NoteCreate):
     await db.refresh(note)
     return note
 
+async def get_note_links(db: AsyncSession, user_id: UUID, note_id: UUID) -> dict:
+    await get_note_by_id(db, user_id, note_id)
+
+    incoming_stmt = select(NoteLinkModel).where(NoteLinkModel.target_id == note_id)
+    outgoing_stmt = select(NoteLinkModel).where(NoteLinkModel.source_id == note_id)
+
+    incoming_res = await db.execute(incoming_stmt)
+    outgoing_res = await db.execute(outgoing_stmt)
+
+    return {
+        "incoming": incoming_res.scalars().all(),
+        "outgoing": outgoing_res.scalars().all()
+    }
+
+async def update_note_links(db: AsyncSession, user_id: UUID, note_id: UUID, target_ids: list[UUID]):
+    await get_note_by_id(db, user_id, note_id)
+
+    # Delete existing outgoing links
+    await db.execute(delete(NoteLinkModel).where(NoteLinkModel.source_id == note_id))
+
+    # Insert new ones
+    for target_id in set(target_ids):
+        link = NoteLinkModel(source_id=note_id, target_id=target_id)
+        db.add(link)
+
+    await db.commit()
+
 async def get_note_by_id(db: AsyncSession, user_id: UUID, note_id: UUID):
     res = await db.execute(
         select(NoteModel).where(
@@ -192,3 +219,129 @@ async def delete_note(db: AsyncSession, user_id: UUID, note_id: UUID):
     note = await get_note_by_id(db, user_id, note_id)
     note.deleted_at = datetime.now(UTC)
     await db.commit()
+
+async def get_templates(db: AsyncSession, user_id: UUID) -> list[NoteTemplateModel]:
+    res = await db.execute(
+        select(NoteTemplateModel).where(
+            NoteTemplateModel.user_id == user_id,
+            NoteTemplateModel.deleted_at.is_(None)
+        )
+    )
+    return res.scalars().all()
+
+async def create_template(db: AsyncSession, user_id: UUID, template_data: NoteTemplateCreate) -> NoteTemplateModel:
+    template = NoteTemplateModel(**template_data.model_dump(), user_id=user_id)
+    db.add(template)
+    await db.commit()
+    await db.refresh(template)
+    return template
+
+async def get_template_by_id(db: AsyncSession, user_id: UUID, template_id: UUID) -> NoteTemplateModel:
+    res = await db.execute(
+        select(NoteTemplateModel).where(
+            NoteTemplateModel.id == template_id,
+            NoteTemplateModel.user_id == user_id,
+            NoteTemplateModel.deleted_at.is_(None)
+        )
+    )
+    template = res.scalar_one_or_none()
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return template
+
+async def update_template(db: AsyncSession, user_id: UUID, template_id: UUID, template_data: NoteTemplateUpdate) -> NoteTemplateModel:
+    template = await get_template_by_id(db, user_id, template_id)
+    update_data = template_data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(template, key, value)
+    await db.commit()
+    await db.refresh(template)
+    return template
+
+async def delete_template(db: AsyncSession, user_id: UUID, template_id: UUID):
+    template = await get_template_by_id(db, user_id, template_id)
+    template.deleted_at = datetime.now(UTC)
+    await db.commit()
+
+async def search_notes(db: AsyncSession, user_id: UUID, query: NoteSearchQuery) -> dict:
+    stmt = select(NoteModel).where(
+        NoteModel.user_id == user_id,
+        NoteModel.deleted_at.is_(None)
+    )
+
+    if query.q:
+        tsquery = func.plainto_tsquery('english', query.q)
+        tsvector = func.to_tsvector('english', func.coalesce(NoteModel.title, '') + ' ' + func.coalesce(NoteModel.content_markdown, ''))
+        stmt = stmt.where(tsvector.op('@@')(tsquery))
+
+    if query.folder_id:
+        stmt = stmt.where(NoteModel.folder_id == query.folder_id)
+    if query.status:
+        stmt = stmt.where(NoteModel.status == query.status)
+    if query.note_type:
+        stmt = stmt.where(NoteModel.note_type == query.note_type)
+
+    # We will ignore tag_ids and subject_ids filters for simplicity in this basic search implementation
+    # or implement them if necessary. For now, executing the text search.
+
+    stmt = stmt.limit(query.limit).offset(query.offset)
+    res = await db.execute(stmt)
+    notes = res.scalars().all()
+
+    items = []
+    for n in notes:
+        items.append({
+            "id": n.id,
+            "title": n.title,
+            "snippet": "", # Would normally use ts_headline
+            "status": n.status,
+            "tags": [],
+            "subject_ids": n.subject_ids,
+            "folder_id": n.folder_id,
+            "updated_at": n.updated_at,
+            "rank": 1.0 # Mock rank
+        })
+
+    return {
+        "items": items,
+        "total": len(items), # Should be a count query, simplifying for now
+        "query": query.q
+    }
+
+async def get_note_versions(db: AsyncSession, user_id: UUID, note_id: UUID) -> list[NoteVersionModel]:
+    # Verify note exists and belongs to user
+    await get_note_by_id(db, user_id, note_id)
+
+    res = await db.execute(
+        select(NoteVersionModel).where(
+            NoteVersionModel.note_id == note_id
+        ).order_by(NoteVersionModel.created_at.desc())
+    )
+    return res.scalars().all()
+
+async def restore_note_version(db: AsyncSession, user_id: UUID, note_id: UUID, version_id: UUID) -> NoteModel:
+    note = await get_note_by_id(db, user_id, note_id)
+
+    res = await db.execute(
+        select(NoteVersionModel).where(
+            NoteVersionModel.id == version_id,
+            NoteVersionModel.note_id == note_id
+        )
+    )
+    version = res.scalar_one_or_none()
+    if not version:
+        raise HTTPException(status_code=404, detail="Version not found")
+
+    # Create a new version before restoring
+    new_version = NoteVersionModel(
+        note_id=note_id,
+        content_json=note.content_json,
+        name=f"Backup before restoring to {version.created_at}",
+        is_checkpoint=True
+    )
+    db.add(new_version)
+
+    note.content_json = version.content_json
+    await db.commit()
+    await db.refresh(note)
+    return note

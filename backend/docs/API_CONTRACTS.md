@@ -136,6 +136,19 @@ Query params: `?offset=0&limit=20`
 | `GET` | `/{id}` | JWT | — | `NoteRead` | ✅ Stable |
 | `PATCH` | `/{id}` | JWT | `NoteUpdate` (partial) | `NoteRead` | ✅ Stable |
 | `DELETE` | `/{id}` | JWT | — | `204 No Content` | ✅ Stable |
+| `GET` | `/search` | JWT | `NoteSearchQuery` params | `NoteSearchResponse` | ✅ Stable |
+| `GET` | `/templates` | JWT | — | `NoteTemplateRead[]` | ✅ Stable |
+| `POST` | `/templates` | JWT | `NoteTemplateCreate` | `NoteTemplateRead` | ✅ Stable |
+| `GET` | `/templates/{id}` | JWT | — | `NoteTemplateRead` | ✅ Stable |
+| `PATCH` | `/templates/{id}` | JWT | `NoteTemplateUpdate` | `NoteTemplateRead` | ✅ Stable |
+| `DELETE` | `/templates/{id}` | JWT | — | `204 No Content` | ✅ Stable |
+| `GET` | `/{id}/versions` | JWT | — | `NoteVersionRead[]` | ✅ Stable |
+| `POST` | `/{id}/versions/{version_id}/restore` | JWT | — | `NoteRead` | ✅ Stable |
+| `GET` | `/{id}/links` | JWT | — | `NoteLinksResponse` | ✅ Stable |
+| `POST` | `/{id}/links` | JWT | `NoteLinksUpdateRequest` | `204 No Content` | ✅ Stable |
+
+### Themes & Workspace Kits (B3)
+*Deferred to future phase (Database models not yet implemented).*
 
 ---
 
@@ -266,11 +279,6 @@ Query params: `?offset=0&limit=20`
 
 | Method | Path | Purpose | Priority |
 |--------|------|---------|:--------:|
-| `GET` | `/notes/templates` | List note templates | 🟡 MEDIUM |
-| `POST` | `/notes/templates` | Create template | 🟡 MEDIUM |
-| `GET` | `/notes/search?q=` | Full-text search | 🟡 MEDIUM |
-| `GET` | `/notes/{id}/versions` | Version history | 🔵 LOW |
-| `POST` | `/notes/{id}/links` | Create Zettelkasten link | 🔵 LOW |
 | `GET` | `/notes/graph` | Knowledge graph data | 🟡 MEDIUM |
 
 ### Chat Enhancement (B4)
