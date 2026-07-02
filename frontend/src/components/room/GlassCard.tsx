@@ -1,3 +1,8 @@
+/**
+ * Room-specific GlassCard — uses `.room-glass` CSS classes.
+ * NOT the same as `@/components/ui/GlassCard` which uses `.glass-panel`.
+ * This variant supports hover lift, glow, and room-specific glassmorphism.
+ */
 import clsx from 'clsx';
 
 interface GlassCardProps {

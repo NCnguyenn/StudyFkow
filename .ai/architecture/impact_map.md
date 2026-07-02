@@ -196,6 +196,30 @@ Unlike a forward-dependency graph (which shows what A depends on), the impact ma
 
 ---
 
+### 4.3 Room Rendering Engine
+
+> **Status:** R5.0 (InteractiveRoomEngine + SVG) SUPERSEDED by R5.5 (PixelRoomEngine + Sprites)
+
+| Component Changed | Dependents |
+|---|---|
+| `PixelRoomEngine.tsx` | `(dashboard)/layout.tsx` (renders engine), `ModuleTransition.tsx` (zoom/dim states), all hotspot routes |
+| `SpriteManifest.ts` | `PixelRoomEngine.tsx`, `RoomSprite.tsx`, `LightingLayer.tsx` (sprite positions for light calc) |
+| `useParallax.ts` | `PixelRoomEngine.tsx` (mouse offset for each sprite) |
+| `useTimeOfDay.ts` | `LightingLayer.tsx` (light params), `PixelRoomEngine.tsx` (sky gradient), `ParticleCanvas.tsx` (day/night particles) |
+| `LightingLayer.tsx` | `PixelRoomEngine.tsx` (overlay rendering) |
+| `ParticleCanvas.tsx` | `PixelRoomEngine.tsx` (overlay rendering) |
+| Sprite PNG files | `RoomSprite.tsx` (image source), `SpriteManifest.ts` (path references) |
+
+**Risk:** Changing `SpriteManifest.ts` schema affects ALL room rendering. Changing sprite PNG files requires matching updates to the manifest. Adding/removing sprites must update both the manifest and the PixelRoomEngine render loop.
+
+**Superseded (DO NOT USE):**
+- `InteractiveRoomEngine.tsx` — DELETED (replaced by PixelRoomEngine)
+- `StudyRoomSVG.tsx`, `DeskZoneSVG.tsx` — DELETED
+- `svg/objects/*.tsx` — DELETED
+
+
+---
+
 ## 5. CROSS-CUTTING CONCERN IMPACT MAP
 
 ### 5.1 Error Class Hierarchy

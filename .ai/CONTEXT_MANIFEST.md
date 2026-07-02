@@ -1,7 +1,7 @@
 # AI StudyFlow — Context Manifest
 
 > Single routing file for all AI agents. Replaces AI_ENTRYPOINT.md + context_loading.md + SYSTEM_OVERVIEW.md.
-> Last updated: 2026-06-29
+> Last updated: 2026-07-02 | R5.5 Pixel Art Sprite Engine active
 
 ## Tech Stack
 
@@ -17,7 +17,24 @@ Architecture: Vertically-sliced modular monolith, single-tenant, AI-native conte
 
 ## Core Files — ALWAYS LOAD at session start
 
-### Antigravity (Frontend Agent) — 7 files
+### Antigravity 2.0 (Project Orchestrator) — 12 files
+
+| # | File | Purpose |
+|---|------|---------|
+| 1 | `.ai/CONTEXT_MANIFEST.md` | This file — routing |
+| 2 | `.agents/AGENTS.md` | Workspace rules |
+| 3 | `PRODUCT.md` | Product vision & brand |
+| 4 | `DESIGN.md` | Design tokens & visual system |
+| 5 | `TEAM_BOUNDARIES.md` | Agent role boundaries (3 agents) |
+| 6 | `.ai/memory/current_session.md` | Current session state |
+| 7 | `.ai/ROADMAP.md` | Frontend roadmap (R5.5 → R10-NEW) |
+| 8 | `backend/docs/JULES_ONBOARDING.md` | Backend roadmap (B1 → B6) |
+| 9 | `backend/docs/API_CONTRACTS.md` | API contracts |
+| 10 | `backend/docs/DATABASE_SCHEMA.md` | DB schema |
+| 11 | `ANTIGRAVITY_PROMPT.md` | Antigravity IDE prompt |
+| 12 | `JULES_PROMPT.md` | Jules prompt |
+
+### Antigravity IDE (Frontend Agent) — 7 files
 
 | # | File | Purpose |
 |---|------|---------|
@@ -46,7 +63,7 @@ Architecture: Vertically-sliced modular monolith, single-tenant, AI-native conte
 
 | Task Type | Agent | Additional Files |
 |-----------|-------|-----------------|
-| Frontend UI | Antigravity | `.ai/architecture/ui_architecture.md`, `.ai/rules/frontend.md` |
+| Frontend UI | Antigravity | `.ai/architecture/ui_architecture.md`, `.ai/rules/frontend.md`, `frontend/src/components/room/engine/SpriteManifest.ts` |
 | Refactor | Antigravity | `.ai/rules/refactor.md`, `.ai/architecture/impact_map.md`, `.ai/architecture/dependencies.md` |
 | Bug Fix | Both | `.ai/memory/known_bugs.md`, `.ai/architecture/impact_map.md` |
 | New Feature | Antigravity | `.ai/features/FEATURE_BOUNDARIES.md`, target feature dir |

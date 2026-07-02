@@ -9,137 +9,102 @@
 ## SESSION METADATA
 
 ```
-Session Start : 2026-06-27T20:38:00+07:00
-Last Updated  : 2026-06-30T12:30:00+07:00
+Session Start : 2026-07-02T12:00:00+07:00
+Last Updated  : 2026-07-02T14:15:00+07:00
 Active Agent  : Antigravity
-Session Focus : Architecture Migration — R4.0 Composite PNG → R5.0 Inline SVG Room Rendering & Git Sync
+Session Focus : R5.5 Complete — Ready for R6 Weather Store + Settings UI
 ```
 
 ---
 
 ## CURRENT STATUS
 
-**R5.0 "SVG Room" architecture migration COMPLETED.**
+**R5.5 (Pixel Art Sprite Room Engine) COMPLETED — successfully migrated to multi-sprite PNG/WebP pixel art engine.**
 
-The room rendering system has been successfully migrated from R4.0 (2 composite PNG images: `room_base.png` + `desk_zone.png`) to R5.0 (inline SVG elements drawn via code, styled with CSS custom properties, animated with CSS transforms).
+The engine now features:
+1. 24 individual pixel art sprites with decoupled transform architecture and WebP optimization
+2. Runtime day/night window swapping via `useTimeOfDay`
+3. High-performance zero-re-render mouse parallax
+4. Real-time volumetric lighting and flicker via `LightingLayer.tsx`
+5. 5 environment-aware particle systems (`Steam`, `Dust`, `Rain`, `Stars`, `Fireflies`)
+6. Interactive hover highlights and GSAP cinematic zoom-to-hotspot transition
 
-Reason for migration:
-- Composite PNG images cannot support per-object animations (lamp flicker, plant sway, etc.)
-- SVGs scale perfectly on all screen sizes (mobile, Retina, 4K)
-- SVGs are much smaller (~50-150KB total vs ~1.7MB for 2 PNGs)
-- SVGs enable dynamic theming via CSS variables
-- SVGs support interactive hover/click effects on individual objects
-- Better for future mobile app deployment (lighter, scalable)
+### Key Decisions (Approved 2026-07-01)
 
-Migration status:
-1. ✅ Documentation alignment (updating all .md files to R5.0 spec)
-2. ✅ SVG room scene creation (draw room objects as inline SVG)
-3. ✅ InteractiveRoomEngine refactor (swap <img> for inline <svg>)
-4. ✅ CSS animation integration (per-object animations)
-5. ✅ Testing & verification & cleanup
-
-Git Sync Status:
-- ✅ Fetched and merged latest code from remote `origin/main` (including Jules' backend B1 bugfixes, AI pipeline interfaces, and chat RAG service enhancements).
-- ✅ Verified frontend builds successfully (`npx tsc --noEmit` passed).
-
+| # | Decision | Details |
+|---|----------|---------|
+| 1 | **Sprite format:** Pixel Art PNGs | 24 individual transparent PNG files, AI-generated, warm lofi pixel art style |
+| 2 | **Night window:** 2 separate sprites | `window_scene_day.png` + `window_scene_night.png`, runtime swap via `useTimeOfDay` |
+| 3 | **Optimization:** WebP-first | Convert PNGs → WebP (quality 85), target total ≤500KB |
+| 4 | **Rendering:** `<img>` tags | Replace CSS-drawn shapes with PNG sprite images |
 
 ---
 
-## KEY DESIGN DECISIONS (R4.0 — Room-as-UI)
+## IMPLEMENTATION PHASES (R5.5)
+
+| Phase | Component | Status | Notes |
+|-------|-----------|--------|-------|
+| **R5.5-P1** | Sprite Asset Creation (24 PNGs) & Manifest | ✅ **Done** | 24 transparent placeholder PNGs generated in `public/assets/rooms/home/sprites/`, `SpriteManifest.ts` refactored with `src`/`srcNight` |
+| **R5.5-P2** | PixelRoomEngine Core + Parallax | ✅ **Done** | `RoomSprite.tsx` migrated to `<img>` tags (pixelated rendering). High-performance zero-re-render parallax implemented using requestAnimationFrame in `PixelRoomEngine.tsx`. Legacy fields removed. |
+| **R5.5-P3** | Real-time Lighting System | ✅ **Done** | Implemented Canvas-based `LightingLayer.tsx` using game development loop patterns (`requestAnimationFrame`, delta time clamping, lerped targets, battery-saving tab visibility check). Draws dynamic volumetric window rays, warm desk lamp glow with realistic flicker, and mood vignette. Integrated into `PixelRoomEngine.tsx`. |
+| **R5.5-P4** | Idle Animations + Particles | ✅ **Done** | Added 6 smooth CSS keyframes and selectors in `globals.css` (.sprite-idle-* and .anim-*). Configured `animation` optional property on `SpriteConfig` and bound dynamic values to inner sprite containers in `RoomSprite.tsx`. Implemented high-performance Firefly, Rain, and Star canvas particle systems under strict count limits, rendering based on environmental states (time of day / weather). |
+| **R5.5-P5** | Interaction System (Hover/Click/Zoom) | ✅ **Done** | Added interactive hover filters (brightness + glow drop-shadow) to `RoomSprite.tsx`. Integrated cinematic GSAP zoom timeline in `PixelRoomEngine.tsx` that animates `transformOrigin` and `scale` to 2.5x with fade-in overlay before executing delayed route navigation. |
+| **R6-NEW** | Weather Store + Settings UI | ⚠️ **Next** | |
+| **R7-NEW** | Focus Experience | ⬜ Not started | |
+| **R8-NEW** | Room Widgets | ⬜ Not started | |
+| **R9-NEW** | Mascot "Wise" Owl | ⬜ Not started | |
+| **R10-NEW** | Gamification (XP, Streak, Levels) | ⬜ Not started | |
+
+---
+
+## KEY DESIGN DECISIONS (R5.5 — Pixel Art Sprite Room Engine)
 
 | # | Decision | Details |
 |---|----------|---------|
 | 1 | **Room Philosophy:** Room objects = UI elements | Each room object IS a navigation target. Click notebook → Notes, click clock → Focus, etc. |
-| 2 | **Assets:** Inline SVG elements | Room objects drawn as SVG `<g>` groups in code. NO external image files. Each object styled via `--sf-room-*` CSS variables. Supports per-object animation, hover effects, and theme switching. |
-| 3 | **Layer System:** 2-layer SVG | Layer 0: `.room-base` (z-0, inline SVG scene). Layer 1: `.module-panel` (z-30, glassmorphism UI). HUD uses inline z-55 positioning. `.radial-menu` (z-60). |
+| 2 | **Assets:** Multi-sprite Pixel Art PNGs | 24 individual transparent PNG/WebP sprites. Each sprite positioned by code via `SpriteManifest.ts`. Per-object parallax, idle animation, realtime lighting. |
+| 3 | **Layer System:** 8 z-layers | Layer 0: Sky Canvas (code-drawn gradient). Layers 1-4: Sprite layers by depth. Layer 5: LightingLayer (Canvas). Layer 6: ParticleCanvas. Layer 7: HUD + `.module-panel` (z-30) + `.radial-menu` (z-60). |
 | 4 | **Viewpoint:** Eye-level (ngang tầm mắt) | NOT isometric. Camera at seated position looking across the room. No ceiling visible. |
-| 5 | **Navigation:** FAB + Radial Menu | Bottom-right FAB button → radial arc menu (desktop). Bottom tab bar (mobile <768px). Replaces CompactDock. |
-| 6 | **Camera:** Zoom-to-hotspot dynamic | GSAP-driven zoom/pan to hotspot zones. No fixed 6-CameraMode presets. |
-| 7 | **Transitions:** Slide + Scale + Blur | Room scales/translates toward object → room dims (opacity 0.3, blur 4px) → module panel slides in. |
-| 8 | **Dashboard:** Full room 100% + HUD overlay | HUD shows greeting, time, quick stats. Room interactive with clickable hotspots. |
-| 9 | **Focus Mode:** GSAP desk zoom (SVG) | Room zooms into desk area (GSAP scale on `.room-base` SVG). No image swap needed — SVG scales losslessly. |
-| 10 | **Day/Night:** CSS filters on `.room-base` | brightness, saturate, hue-rotate driven by `new Date().getHours()`. Calculated in `InteractiveRoomEngine.tsx`. |
-| 11 | **Hover:** CSS-only per hotspot | Brighten, glow, pulse overlays. No tooltips. |
-| 12 | **Mobile:** Bottom tab bar fallback | `<768px` → hide radial arc, show traditional bottom tabs. Room is decorative background. |
+| 5 | **Navigation:** FAB + Radial Menu | Bottom-right FAB button → radial arc menu (desktop). Bottom tab bar (mobile <768px). |
+| 6 | **Camera:** Zoom-to-hotspot dynamic | GSAP-driven zoom/pan to hotspot sprites. |
+| 7 | **Transitions:** Slide + Scale + Blur | Room scales/translates toward sprite → room dims (opacity 0.3, blur 4px) → module panel slides in. |
+| 8 | **Dashboard:** Full room 100% + HUD overlay | HUD shows greeting, time, quick stats. Room interactive with clickable sprite hotspots. |
+| 9 | **Day/Night:** 2 separate window sprites | `window_scene_day.png` (6h-17h) + `window_scene_night.png` (18h-5h). Crossfade 60s transitions. |
+| 10 | **Hover:** Per-sprite effects | brightness(1.2) + glow + drop-shadow. |
+| 11 | **Mobile:** Bottom tab bar fallback | `<768px` → hide radial arc, show traditional bottom tabs. Room is decorative background. |
+| 12 | **4 Golden Rules** | (1) No static objects — every sprite has idle animation (2) Per-object parallax (3) Per-object lighting (4) Particles for life — always running |
 
 ---
 
 ## COMPLETED PHASES (R4.0)
 
-### ✅ Phase 1 — Generate Composite Sprites
-- Generated `room_base.png` (full room eye-level composite)
-- Generated `desk_zone.png` (desk close-up for Focus mode)
-- Updated `sprites.json` to v3.0 format (`base` + `hotspots`)
-
-### ✅ Phase 2 — Interactive Room Engine (Core)
-- Created `InteractiveRoomEngine.tsx` — hotspot zones + zoom state machine + dynamic lighting (hotspot data hardcoded inside, uses internal `HotspotZone` sub-component)
-- Created `RoomHotspot.tsx` — standalone hotspot component (currently UNUSED — `InteractiveRoomEngine` uses its own internal hotspot rendering)
-- Created `types/room.ts` — shared type definitions
-- Deleted legacy `RoomPerspective.tsx`, `SpriteLoader.ts`, `layers/` subfolder
-
-### ✅ Phase 3 — Dashboard — Full Room + HUD
-- Created `HudOverlay.tsx` — greeting, time, quick stats
-- Refactored `page.tsx` (Dashboard) — removed ProfileHero/Canvas, added HUD
-- Moved ProfileHero → Settings page
-- Created `/canvas` module (click laptop → FreeformCanvas)
-
-### ✅ Phase 4 — FAB + Radial Menu
-- Created `RadialNavMenu.tsx` — FAB button + radial arc menu
-- Deleted `CompactDock.tsx` from layout
-- Preserved Ctrl+1..6 keyboard shortcuts
-
-### ✅ Phase 5 — Module Transitions
-- Created `ModuleTransition.tsx` — slide + scale + blur
-- Refactored `layout.tsx` — new 2-layer layout structure
-- Implemented Focus mode desk zoom + smart swap
-- Updated Notes/Tasks/Insights pages for glassmorphism panels
-
-### ✅ Phase 6 — CSS Overhaul
-- Added new CSS: `.room-base`, `.room-base--dimmed`, `.room-base--focus`, `.room-hotspot`, `.module-panel`, `.fab-button`, `.radial-menu`
-- Kept: `.room-glass`, `.room-glass-card`, `.room-vignette`, day/night CSS vars
-- Removed old 6-layer CSS (`.room-perspective`, `.room-layer-sky/bg/light/fg/widgets/ui`) completely from `globals.css`
-- Consolidated duplicate definitions of `.room-glass`, `.room-glass-card`, and `.room-hotspot` into clean, single definitions
-- Safely kept `.hud-item` styles inline in `HudOverlay.tsx` to maintain lightweight CSS
-
-### ✅ Phase 7 — Day/Night Adaptation
-- Adapted lighting for composite sprite (CSS filters on `.room-base` driven by actual local hour)
-- Integrated sky lighting shifts inside composite base image + ambient overlays
-
-### ✅ Phase 8 — Hover Animations
-- Implemented CSS-only hover effects per hotspot zone (brighten, glow, pulse overlays)
-- Mobile bottom tab bar fallback (<768px)
+### ✅ Phase 1-8 — All R4.0 phases completed (Room-as-UI Architecture)
 
 ---
 
-## IMPLEMENTATION PHASES (R4.0 Complete → R5.0 In Progress)
+## ✅ R5.0 — SVG Room Migration (SUPERSEDED by R5.5)
 
-| Phase | Component | Status |
-|-------|-----------|--------|
-| **R4.0-P1** | Composite Sprite Generation (2 images) | ✅ Complete |
-| **R4.0-P2** | InteractiveRoomEngine + Hotspot Zones | ✅ Complete |
-| **R4.0-P3** | Dashboard Full Room + HUD Overlay | ✅ Complete |
-| **R4.0-P4** | FAB + Radial Menu Navigation | ✅ Complete |
-| **R4.0-P5** | Module Transitions (Slide + Scale + Blur) | ✅ Complete |
-| **R4.0-P6** | CSS Overhaul (2-Layer System) | ✅ Complete |
-| **R4.0-P7** | Day/Night CSS Filter Adaptation | ✅ Complete |
-| **R4.0-P8** | Hover Animations + Mobile Fallback | ✅ Complete |
-| **R5.0-P1** | Architecture design (ui_architecture.md update) | ✅ Complete |
-| **R5.0-P2** | SVG Component Decomposition (svg/objects/) | ✅ Complete |
-| **R5.0-P3** | InteractiveRoomEngine refactor (swap img for svg) | ✅ Complete |
-| **R5.0-P4** | CSS Animation Integration | ✅ Complete |
-| **R5.0-P5** | Testing & Cleanup | ✅ Complete |
-| **R6-NEW** | Weather & Ambient Effects | ❌ Not started |
-| **R8-NEW** | Room Widgets (Clock, Sticky Notes, Chalkboard) | ❌ Not started |
-| **R9-NEW** | Mascot "Wise" Owl (Lottie) | ❌ Not started |
-| **R10-NEW** | Gamification (XP, Streak, Levels) | ❌ Not started |
+All 5 phases completed but architecture replaced by R5.5 Pixel Art Sprite Engine.
 
 ---
 
-## KEY FILES (R4.0)
+## KEY FILES (R5.5)
 
 ### Core Room System
-- `src/components/room/InteractiveRoomEngine.tsx` — Room composite + hotspot zones + GSAP zoom + dynamic lighting
-- `src/types/room.ts` — Shared TypeScript types
+- `src/components/room/engine/PixelRoomEngine.tsx` — Main engine rendering all sprites
+- `src/components/room/engine/RoomSprite.tsx` — Individual sprite component (currently CSS-drawn, will be PNG)
+- `src/components/room/engine/SpriteManifest.ts` — Sprite config (position, depth, animation)
+- `src/components/room/engine/LightingLayer.tsx` — Realtime lighting Canvas overlay (stub)
+- `src/components/room/engine/ParticleCanvas.tsx` — Particle effects Canvas overlay (Steam+Dust working)
+- `src/hooks/useParallax.ts` — Mouse parallax per-object hook (working)
+- `src/hooks/useTimeOfDay.ts` — Time-based lighting parameters (working)
+
+### Particle Systems
+- `src/components/room/engine/particles/SteamParticles.ts` — ✅ Working (8 particles, always active)
+- `src/components/room/engine/particles/DustParticles.ts` — ✅ Working (15 particles, daytime)
+- `src/components/room/engine/particles/FireflyParticles.ts` — ⬜ Stub (night only)
+- `src/components/room/engine/particles/RainParticles.ts` — ⬜ Stub (weather toggle)
+- `src/components/room/engine/particles/StarParticles.ts` — ⬜ Stub (night only)
 
 ### Navigation & Layout
 - `src/components/ui/RadialNavMenu.tsx` — FAB + radial arc (desktop) / bottom tab bar (mobile)
@@ -148,22 +113,21 @@ Git Sync Status:
 - `src/app/(dashboard)/layout.tsx` — 2-layer layout structure
 
 ### Assets
-- `src/components/room/svg/` — SVG room scene components (to be created)
-- `public/assets/rooms/home/room_base.png` — ✅ DELETED in R5.0-P5
-- `public/assets/rooms/home/desk_zone.png` — ✅ DELETED in R5.0-P5
+- `public/assets/rooms/home/sprites/*.png` — Individual pixel art sprite files (24 transparent PNGs created)
 
 ### Styling
-- `src/app/globals.css` — CSS layers, room tokens, glassmorphism, z-index map
+- `src/app/globals.css` — CSS layers, room tokens, glassmorphism, z-index map. NOTE: Sprite idle `@keyframes` NOT YET ADDED.
 
 ---
 
 ## ARCHITECTURE STATE
 
-- **Backend:** FastAPI + PostgreSQL + JWT Auth — Stable, NO CHANGES.
+- **Backend:** FastAPI + PostgreSQL + JWT Auth — Stable. **Phase B1 (Bug Fixes) & Phase B2 (Full Test Coverage) completed and merged.**
 - **Frontend:** Next.js App Router + Tailwind CSS v4 + TypeScript.
-- **Room System:** Successfully migrated from v4.0 (Composite PNG) to v5.0 (Inline SVG + CSS). Old raster assets deleted.
-- **Stores:** Room-specific stores (`useRoomStore`, `useWeatherStore`, `useCompanionStore`, `useGamificationStore`) NOT yet created. Day/night logic is inline in `InteractiveRoomEngine.tsx`.
+- **Room System:** R5.5 Pixel Art Sprite Engine — CSS-drawn shapes working, migrating to PNG sprites.
+- **Stores:** Room-specific stores (`useRoomStore`, `useWeatherStore`, `useCompanionStore`, `useGamificationStore`) NOT yet created. Day/night logic in `useTimeOfDay.ts` hook.
 - **Build:** Last verified `tsc --noEmit` passed.
+- **Forbidden:** `framer-motion` removed from package.json (2026-07-02).
 
 ---
 
@@ -171,11 +135,13 @@ Git Sync Status:
 
 - **Backend Safety:** UI redesign does NOT affect backend. API contracts, DB schema, auth flow remain unchanged.
 - **CSS Safety:** When editing `globals.css`, preserve ALL existing `--sf-*` variables.
-- **Layer System:** 2-layer composite (NOT 6-layer CSS perspective). `.room-base` (z-0) + `.module-panel` (z-30). Dim states: `.room-base--dimmed`, `.room-base--focus`.
-- **Performance:** Animations use `transform`/`opacity` only. Weather particles capped at 30.
+- **Layer System:** Multi-sprite engine (8 z-layers). `.pixel-room-engine` (z-0) + `.module-panel` (z-30). Dim states for zoom transitions.
+- **Performance:** Idle animations use `transform`/`opacity` only. Particles capped per type (Steam ≤8, Rain ≤30, Dust ≤15, Fireflies ≤12, Stars ≤35).
 - **Navigation:** FAB + Radial Menu (desktop). Bottom tab bar (mobile <768px). Ctrl+1..6 shortcuts active.
 - **DnD Safety:** Do not modify drag-and-drop hooks.
 - **Timer Safety:** Do not modify the timer/focus engine.
+- **4 Golden Rules:** (1) No static objects (2) Per-object parallax (3) Per-object lighting (4) Particles for life
+- **GlassCard:** Two separate components exist — `ui/GlassCard.tsx` (named export, glass-panel) and `room/GlassCard.tsx` (default export, room-glass). Both are intentional.
 
 ---
 
@@ -183,7 +149,7 @@ Git Sync Status:
 
 **When starting a new session:**
 1. Read this file first
-2. Read `.ai/architecture/ui_architecture.md` (v5.0) for the design spec
+2. Read `.ai/architecture/ui_architecture.md` for the design spec
 3. Check the current implementation phase
 4. Begin implementing the next phase
 

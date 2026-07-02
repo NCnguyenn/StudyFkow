@@ -1,85 +1,110 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// useParallax — Mouse-tracking parallax engine (extracted from RoomPerspective v3.1)
+// useParallax v5.5 — Per-Object Parallax Engine
 // ═══════════════════════════════════════════════════════════════════════════════
-// Adds a subtle mouse-follow offset to a target element via CSS custom properties
-// --parallax-x and --parallax-y. The element can use these in `translate`.
+// Tracks mouse position and provides per-depth offset calculation.
+// Each sprite calls getOffset(depth) to get its unique parallax translation.
 //
-// Usage:
-//   const containerRef = useRef<HTMLDivElement>(null);
-//   useParallax(containerRef, { speed: 0.05, maxShiftX: 30, maxShiftY: 20 });
-//
-//   <div ref={containerRef} style={{ translate: 'var(--parallax-x) var(--parallax-y)' }}>
+// Formula: offset = (mouseNormalized - 0.5) * depth * strength * maxShift
+//   - depth 0.0 → almost no movement (far background)
+//   - depth 1.0 → maximum movement (near foreground)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-interface ParallaxOptions {
-  /** Mouse-follow speed multiplier. Higher = more movement. Default: 0.05 */
-  speed?: number;
-  /** Maximum horizontal displacement in pixels. Default: 30 */
+interface ParallaxState {
+  /** Normalized mouse X: 0.0 (left) → 1.0 (right) */
+  normalizedX: number;
+  /** Normalized mouse Y: 0.0 (top) → 1.0 (bottom) */
+  normalizedY: number;
+}
+
+interface ParallaxConfig {
+  /** Base strength multiplier. Default: 15 */
+  strength?: number;
+  /** Maximum horizontal shift in px. Default: 40 */
   maxShiftX?: number;
-  /** Maximum vertical displacement in pixels. Default: 20 */
+  /** Maximum vertical shift in px. Default: 25 */
   maxShiftY?: number;
-  /** Lerp smoothing factor. Lower = smoother trailing. Default: 0.05 */
-  lerpFactor?: number;
-  /** Whether parallax is enabled. Default: true */
+  /** Lerp smoothing (0-1, lower = smoother). Default: 0.06 */
+  smoothing?: number;
+  /** Enable/disable. Default: true */
   enabled?: boolean;
 }
 
-export function useParallax(
-  containerRef: React.RefObject<HTMLElement | null>,
-  options: ParallaxOptions = {},
-) {
+export interface ParallaxOffset {
+  x: number;
+  y: number;
+}
+
+export function useParallax(config: ParallaxConfig = {}) {
   const {
-    speed = 0.05,
-    maxShiftX = 30,
-    maxShiftY = 20,
-    lerpFactor = 0.05,
+    strength = 15,
+    maxShiftX = 40,
+    maxShiftY = 25,
+    smoothing = 0.06,
     enabled = true,
-  } = options;
+  } = config;
 
+  const targetRef = useRef<ParallaxState>({ normalizedX: 0.5, normalizedY: 0.5 });
+  const currentRef = useRef<ParallaxState>({ normalizedX: 0.5, normalizedY: 0.5 });
   const rafIdRef = useRef<number>(0);
-  const targetRef = useRef({ x: 0, y: 0 });
-  const currentRef = useRef({ x: 0, y: 0 });
+  const [, forceUpdate] = useState(0);
+  const frameCountRef = useRef(0);
 
-  const updateParallax = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || !enabled) {
-      rafIdRef.current = requestAnimationFrame(updateParallax);
-      return;
+  const animate = useCallback(() => {
+    // Lerp toward target
+    currentRef.current.normalizedX +=
+      (targetRef.current.normalizedX - currentRef.current.normalizedX) * smoothing;
+    currentRef.current.normalizedY +=
+      (targetRef.current.normalizedY - currentRef.current.normalizedY) * smoothing;
+
+    // Only trigger React re-render every 2 frames for performance
+    frameCountRef.current++;
+    if (frameCountRef.current % 2 === 0) {
+      forceUpdate((n) => n + 1);
     }
 
-    // Smooth lerp interpolation
-    currentRef.current.x +=
-      (targetRef.current.x - currentRef.current.x) * lerpFactor;
-    currentRef.current.y +=
-      (targetRef.current.y - currentRef.current.y) * lerpFactor;
-
-    const dx = currentRef.current.x * speed * maxShiftX;
-    const dy = currentRef.current.y * speed * maxShiftY;
-
-    container.style.setProperty('--parallax-x', `${dx}px`);
-    container.style.setProperty('--parallax-y', `${dy}px`);
-
-    rafIdRef.current = requestAnimationFrame(updateParallax);
-  }, [containerRef, speed, maxShiftX, maxShiftY, lerpFactor, enabled]);
+    rafIdRef.current = requestAnimationFrame(animate);
+  }, [smoothing]);
 
   useEffect(() => {
     if (!enabled) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      targetRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
-      targetRef.current.y = (e.clientY / window.innerHeight - 0.5) * 2;
+      targetRef.current.normalizedX = e.clientX / window.innerWidth;
+      targetRef.current.normalizedY = e.clientY / window.innerHeight;
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    rafIdRef.current = requestAnimationFrame(updateParallax);
+    rafIdRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(rafIdRef.current);
     };
-  }, [updateParallax, enabled]);
+  }, [animate, enabled]);
+
+  /**
+   * Get parallax offset for a given depth value.
+   * @param depth 0.0 (far/static) to 1.0 (near/fast)
+   * @returns { x, y } offset in pixels
+   */
+  const getOffset = useCallback(
+    (depth: number): ParallaxOffset => {
+      if (!enabled) return { x: 0, y: 0 };
+
+      const dx = (currentRef.current.normalizedX - 0.5) * depth * strength;
+      const dy = (currentRef.current.normalizedY - 0.5) * depth * strength;
+
+      return {
+        x: Math.max(-maxShiftX, Math.min(maxShiftX, dx)),
+        y: Math.max(-maxShiftY, Math.min(maxShiftY, dy)),
+      };
+    },
+    [enabled, strength, maxShiftX, maxShiftY],
+  );
+
+  return { getOffset };
 }

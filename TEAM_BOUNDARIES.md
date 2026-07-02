@@ -1,21 +1,22 @@
-# TEAM_BOUNDARIES.md — Quy ước phân công Antigravity + Jules
+# TEAM_BOUNDARIES.md — Quy ước phân công Agent Team
 
-> **Mục đích:** File này là "hợp đồng" giữa 2 AI agents cùng làm việc trên dự án AI StudyFlow.
-> Cả 2 agent PHẢI đọc file này trước khi bắt đầu bất kỳ task nào.
+> **Mục đích:** File này là "hợp đồng" giữa 3 AI agents cùng làm việc trên dự án AI StudyFlow.
+> Tất cả agents PHẢI đọc file này trước khi bắt đầu bất kỳ task nào.
 >
-> **Cập nhật lần cuối:** 2026-06-27
+> **Cập nhật lần cuối:** 2026-07-02
 
 ---
 
 ## 1. Phân công vai trò
 
-| | **Antigravity** | **Jules** |
-|---|---|---|
-| **Vai trò** | Frontend Lead | Backend Lead |
-| **Công nghệ** | Next.js, TypeScript, React, CSS, SVG, GSAP | FastAPI, Python, SQLAlchemy, PostgreSQL, Redis, Celery |
-| **Nhiệm vụ chính** | Room SVG rendering, Module UI, Animation, Layout, UX | API endpoints, Database, Business logic, Background jobs, Tests |
-| **Lộ trình** | `.ai/ROADMAP.md` (R5.0 → R9) | `backend/docs/JULES_ONBOARDING.md` (B1 → B6) |
-| **Cách vận hành** | Real-time chat trong IDE | Async qua GitHub Issue → PR |
+| | **Antigravity 2.0** | **Antigravity IDE** | **Jules** |
+|---|---|---|---|
+| **Vai trò** | Project Orchestrator | Frontend Lead | Backend Lead |
+| **Công nghệ** | Prompt Engineering, Project Management | Next.js, TypeScript, React, CSS, GSAP, Canvas 2D | FastAPI, Python, SQLAlchemy, PostgreSQL, Redis, Celery |
+| **Nhiệm vụ chính** | Tạo prompt, giám sát tiến độ, kiểm tra alignment | Pixel Art Room Engine, Module UI, Animation, Layout, UX | API endpoints, Database, Business logic, Background jobs, Tests |
+| **Lộ trình** | Giám sát cả 2 roadmap | `.ai/ROADMAP.md` (R5.5 → R10-NEW) | `backend/docs/JULES_ONBOARDING.md` (B1 → B6) |
+| **Cách vận hành** | Tạo prompt → gửi executor → đọc kết quả → tạo follow-up | Real-time chat trong IDE | Async qua GitHub Issue → PR |
+| **Prompt file** | `ANTIGRAVITY_2.0_PROMPT.md` | `ANTIGRAVITY_PROMPT.md` | `JULES_PROMPT.md` |
 
 ---
 
@@ -157,16 +158,19 @@ docker-compose.yml           ← Infra config (phối hợp qua user)
 ```
 Timeline →  Tuần 1          Tuần 2          Tuần 3          Tuần 4
             ─────────────── ─────────────── ─────────────── ───────────────
-Antigravity │ R5.0-P2       │ R5.0-P3       │ R5.0-P4,P5    │ R6 (Weather)
-            │ SVG Room      │ Engine Refact  │ Animations    │ Canvas 2D
-            │ Creation      │ or             │ + Cleanup     │
+Anti. 2.0   │ Audit + Plan  │ Monitor P2-P3 │ Monitor P4-P5 │ Plan R6
+            │ Create prompts│ Quality gate  │ Quality gate  │ Next sprint
             ─────────────── ─────────────── ─────────────── ───────────────
-Jules       │ B1 Bug Fixes  │ B2 Test        │ B3 Notes API  │ B4 Chat LLM
-            │ + B2 Tests    │ Coverage       │ Expansion     │ Integration
-            │ (parallel)    │                │               │
+Anti. IDE   │ R5.5-P1       │ R5.5-P2,P3    │ R5.5-P4,P5    │ R6 (Weather)
+            │ Sprite Assets │ PNG Render +   │ Animations    │ Store + UI
+            │               │ Lighting       │ + GSAP Zoom   │
+            ─────────────── ─────────────── ─────────────── ───────────────
+Jules       │ B3 Notes API  │ B3 continued  │ B4 Chat LLM   │ B4 continued
+            │ Expansion     │               │ Integration   │
             ─────────────── ─────────────── ─────────────── ───────────────
             
-                              ↕ API_CONTRACTS.md (coordination point)
+      Antigravity 2.0 ↕ monitors both via docs + codebase verification
+                       ↕ API_CONTRACTS.md (coordination point)
 ```
 
-> **Lưu ý:** B5 (Flashcard Engine) và B6 (Spaced Repetition) chỉ bắt đầu sau khi Antigravity ghi API contract cho các module này.
+> **Lưu ý:** B5 (Flashcard Engine) và B6 (Spaced Repetition) chỉ bắt đầu sau khi Antigravity IDE ghi API contract cho các module này.

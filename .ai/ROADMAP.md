@@ -1,10 +1,12 @@
-# ROADMAP — UI/UX Illustrated Study Room v5.0 Implementation
+# ROADMAP — UI/UX Illustrated Study Room v5.5 Implementation
 
-> **Reference:** `.ai/architecture/ui_architecture.md` (full v5.0 design spec)
+> **Reference:** `.ai/architecture/ui_architecture.md` (full design spec)
 >
 > **Rule:** Complete each phase IN ORDER. Do NOT skip ahead. Each phase has verification tests — ALL must pass before proceeding.
 >
-> **Architecture:** Inline SVG Room Scene + 2-Layer System + GSAP Zoom Transitions + FAB/Radial Navigation
+> **Architecture:** R5.5 Pixel Art Sprite Engine + Per-Object Parallax + Realtime Lighting + GSAP Zoom Transitions + FAB/Radial Navigation
+>
+> **Last updated:** 2026-07-02
 
 ---
 
@@ -227,7 +229,7 @@ Caveat font loaded with `--sf-font-handwriting: 'Caveat', cursive;` CSS variable
 
 ---
 
-# R5.0 — SVG Room Migration (IN PROGRESS)
+# R5.0 — SVG Room Migration (✅ SUPERSEDED by R5.5)
 
 > **Migration:** R4.0 → R5.0 replaces composite PNG images with inline SVG elements drawn via code.
 > - **OLD (R4.0):** 2 composite PNG images (`room_base.png` 924KB + `desk_zone.png` 778KB), no per-object animation, static rendering
@@ -360,11 +362,96 @@ Add per-object CSS animations to SVG elements:
 - [ ] `npm run build` passes.
 - [ ] No references to `room_base.png` or `desk_zone.png` in code.
 
-# PHASE R6-NEW — Enhanced Lighting & Weather
+# PHASE R6-NEW — Weather Store & Settings UI (Scope reduced — Lighting/Particles moved to R5.5)
 
-**Goal:** Build the full weather canvas system and advanced ambient effects on top of the R5.0 SVG architecture. Basic day/night via CSS filters is DONE (R4.0-P7, preserved in R5.0). This phase adds the Canvas 2D weather layer, volumetric lighting overlays, and enhanced ambient CSS effects targeting SVG groups.
+---
 
-> **Note:** Merged from old R4 (Lighting System) and old R5 (Weather & Ambient Effects). Basic day/night CSS filters are already working from R4.0-P7. This phase covers everything beyond that. CSS ambient effects (plant sway, lamp flicker, coffee steam) are partially covered by R5.0-P4 — this phase extends them with weather canvas and volumetric lighting.
+# R5.5 — Pixel Art Sprite Room Engine (IN PROGRESS)
+
+> **Migration:** R5.0 (Flat SVG vectors) → R5.5 (Multi-sprite Pixel Art with depth)
+> - **OLD (R5.0):** Inline SVG `<g>` groups, flat vector art, basic CSS animations
+> - **NEW (R5.5):** 24 individual pixel art PNG/WebP sprites with per-object parallax, real-time lighting, continuous idle animations, particle effects, interactive hover/click
+>
+> **Key Decisions (Approved 2026-07-01):**
+> - **24 transparent PNG sprites** (warm lofi pixel art, AI-generated)
+> - **2 separate window sprites:** `window_scene_day.png` + `window_scene_night.png` (runtime swap, crossfade transition)
+> - **WebP-first optimization:** Target total ≤500KB (convert PNG → WebP quality 85)
+> - **Rendering:** `<img>` tags with `imageRendering: pixelated` (replaces CSS-drawn shapes)
+>
+> **4 Golden Rules (Non-negotiable):**
+> 1. No static objects — every sprite has idle animation
+> 2. Per-object parallax — each sprite has depth 0.0-1.0
+> 3. Per-object lighting — light/shadow computed per sprite
+> 4. Particles for life — at least 1 particle system always running
+
+## ⬜ R5.5-P1 — Sprite Asset Creation
+
+- Generate 24 pixel art sprites (32-bit, detailed, warm lofi style)
+- Create transparent PNG sprites for each room object
+- 2 window scene variants: day (trees/sky) + night (city/stars)
+- Output to `public/assets/rooms/home/sprites/*.png`
+- SpriteManifest.ts already exists (300 lines, 23 entries) — needs `src`/`srcNight` fields added
+
+## ⚠️ R5.5-P2 — PixelRoomEngine Core + Per-Object Parallax — PARTIALLY DONE
+
+- ✅ `PixelRoomEngine.tsx` (227 lines) — sky gradient, lighting overlays, vignette, sprite rendering
+- ✅ `RoomSprite.tsx` (312 lines) — per-object parallax, brightness filter, click handling
+- ✅ `SpriteManifest.ts` (300 lines) — 23 sprite entries with position, depth, animation config
+- ✅ `useParallax.ts` (111 lines) — mouse tracking + per-depth offset with lerp smoothing
+- ⬜ **NEEDS:** Replace CSS-drawn shapes → PNG `<img>` rendering
+- ⬜ **NEEDS:** Add `src: string` and `srcNight?: string` to SpriteConfig interface
+- ⬜ **NEEDS:** Remove `colors`, `shape`, `borderRadius` fields from SpriteConfig
+
+## ⚠️ R5.5-P3 — Real-time Lighting System — PARTIALLY DONE
+
+- ✅ `useTimeOfDay.ts` (97 lines) — 6 time slots, window/lamp intensity, auto-update every 60s
+- ✅ Per-sprite brightness calculation in PixelRoomEngine (distance-based from lamp/window)
+- ✅ Inline volumetric window light + desk lamp glow divs in PixelRoomEngine
+- ⬜ **NEEDS:** `LightingLayer.tsx` Canvas implementation (currently returns null stub)
+- ⬜ **NEEDS:** Move inline light divs → Canvas-based LightingLayer for better performance
+
+## ⚠️ R5.5-P4 — Idle Animations + Particle System — PARTIALLY DONE
+
+- ✅ `ParticleCanvas.tsx` (79 lines) — render loop, Steam + Dust running
+- ✅ `SteamParticles.ts` (82 lines) — fully working, 8 particles, always active
+- ✅ `DustParticles.ts` (65 lines) — fully working, 15 particles, daytime only
+- ⬜ `FireflyParticles.ts` — stub (interface fixed, TODO implementation)
+- ⬜ `RainParticles.ts` — stub (interface fixed, TODO implementation)
+- ⬜ `StarParticles.ts` — stub (interface fixed, TODO implementation)
+- ⬜ **NEEDS:** CSS `@keyframes` for 6 idle types (wobble, breathe, sway, flicker, wind, flutter)
+
+## ⚠️ R5.5-P5 — Interaction System — PARTIALLY DONE
+
+- ✅ Click → `router.push(clickRoute)` works
+- ✅ Hotspot mapping defined in SpriteManifest (laptop→/notes, clock→/focus, bookshelf→/planning, etc.)
+- ⬜ **NEEDS:** GSAP zoom-to-hotspot animation before route push
+- ⬜ **NEEDS:** Hover glow CSS classes (`.room-sprite:hover`)
+
+## Verification Tests — Phase R5.5
+
+- [ ] 24 sprite PNG/WebP files exist in `public/assets/rooms/home/sprites/`
+- [ ] Every sprite has visible idle animation (zero static objects)
+- [ ] Mouse movement causes per-object parallax (each sprite moves differently)
+- [ ] Desk lamp casts realtime light + shadow on nearby sprites
+- [ ] Window light intensity changes with time of day
+- [ ] Day/night window scene swap with smooth crossfade
+- [ ] Steam particles rise from coffee mug continuously
+- [ ] Color grading shifts smoothly across 6 time slots
+- [ ] Hover on each interactive sprite shows glow effect
+- [ ] Click on laptop navigates to /notes with GSAP zoom
+- [ ] Click on bookshelf navigates to /planning
+- [ ] Click on clock navigates to /focus
+- [ ] Click on corkboard navigates to /tasks
+- [ ] 60fps on desktop, ≥30fps on mobile
+- [ ] Total sprite payload ≤500KB (WebP)
+- [ ] `npx tsc --noEmit` passes
+- [ ] `npm run build` passes
+
+---
+
+**Goal:** Build weather stores and settings UI. Lighting system (AmbientLightLayer), weather canvas (WeatherCanvas), weather effects (Rain/Stars/Clouds/Fireflies), and enhanced CSS ambient effects have been ABSORBED into R5.5-P3 and R5.5-P4. This phase only contains: useRoomStore enhancements, useWeatherStore, and Weather Settings UI page.
+
+> **Note:** R6-NEW.2 (AmbientLightLayer), R6-NEW.3 (WeatherCanvas), R6-NEW.4 (Weather effects), R6-NEW.6 (Enhanced CSS ambient) are now part of R5.5. Remaining scope: R6-NEW.1 (useRoomStore), R6-NEW.5 (useWeatherStore), R6-NEW.7 (Weather Settings UI).
 
 ## Tasks
 

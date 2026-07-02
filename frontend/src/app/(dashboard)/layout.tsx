@@ -6,7 +6,7 @@ import { useAppStore } from "../../store/useAppStore";
 import GlobalSearchModal from "@/components/features/search/GlobalSearchModal";
 import { useRealtimeEvents } from "@/hooks/useRealtimeEvents";
 import { FloatingChat } from "@/components/features/chat/FloatingChat";
-import InteractiveRoomEngine from "@/components/room/InteractiveRoomEngine";
+import PixelRoomEngine from "@/components/room/engine/PixelRoomEngine";
 import HudOverlay from "@/components/room/HudOverlay";
 import ModuleTransition from "@/components/room/ModuleTransition";
 import RadialNavMenu from "@/components/ui/RadialNavMenu";
@@ -16,7 +16,7 @@ import RadialNavMenu from "@/components/ui/RadialNavMenu";
 // ═══════════════════════════════════════════════════════════════════════════════
 // 2-Layer system replaces the old 6-layer perspective approach:
 //
-//   Layer 0: InteractiveRoomEngine (composite room image + hotspots + zoom)
+//   Layer 0: PixelRoomEngine (pixel art sprites + parallax + lighting + particles)
 //   Layer 1: ModuleTransition (glassmorphism panel wrapping page children)
 //
 // Navigation:
@@ -161,7 +161,7 @@ export default function DashboardLayout({
           Renders the study room illustration and manages zoom transitions.
           Camera auto-adjusts based on the active module.
       ══════════════════════════════════════════════════════════════════ */}
-      <InteractiveRoomEngine activeModule={activeModule} />
+      <PixelRoomEngine activeModule={activeModule} />
 
       {/* ══════════════════════════════════════════════════════════════════
           Layer 1: Module UI Panel

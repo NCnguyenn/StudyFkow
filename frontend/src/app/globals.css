@@ -413,26 +413,76 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── R5.0-P4: SVG Animation Integration ─── */
-#plant-desk-group {
-  transform-origin: 460px 660px;
-  animation: room-sway 6s ease-in-out infinite;
+/* ═══ R5.5: Sprite Idle Animations ═══════════════════════════════════════════ */
+/* Golden Rule #1: EVERY sprite MUST have one of these. Zero static objects.  */
+
+/* Wobble — small objects (cups, pencils, headphones) */
+@keyframes sprite-wobble {
+  0%, 100% { transform: var(--sprite-base-transform, none) translate(0, 0) rotate(0deg); }
+  25%      { transform: var(--sprite-base-transform, none) translate(0.5px, -0.3px) rotate(0.3deg); }
+  50%      { transform: var(--sprite-base-transform, none) translate(-0.3px, 0.5px) rotate(-0.2deg); }
+  75%      { transform: var(--sprite-base-transform, none) translate(0.4px, 0.2px) rotate(0.15deg); }
 }
 
-#plant-bookshelf {
-  transform-origin: 140px 605px;
-  animation: room-sway 7s ease-in-out infinite alternate;
+/* Breathe — large objects (desk, wall, bookshelf) */
+@keyframes sprite-breathe {
+  0%, 100% { transform: var(--sprite-base-transform, none) scale(1.000); }
+  50%      { transform: var(--sprite-base-transform, none) scale(1.002); }
 }
 
-#steam-group path {
-  animation: room-steam 4s infinite linear;
+/* Sway — plants (transform-origin bottom center) */
+@keyframes sprite-sway {
+  0%, 100% { transform: var(--sprite-base-transform, none) rotate(0deg); }
+  25%      { transform: var(--sprite-base-transform, none) rotate(1.2deg); }
+  75%      { transform: var(--sprite-base-transform, none) rotate(-1.2deg); }
 }
-#steam-group path:nth-child(1) { animation-delay: 0s; }
-#steam-group path:nth-child(2) { animation-delay: 1.3s; }
-#steam-group path:nth-child(3) { animation-delay: 2.6s; }
 
-#lamp-glow {
-  animation: room-flicker 3s infinite;
+/* Flicker — desk lamp (opacity pulse) */
+@keyframes sprite-flicker {
+  0%, 100% { opacity: 1; }
+  15%      { opacity: 0.92; }
+  30%      { opacity: 1; }
+  45%      { opacity: 0.88; }
+  60%      { opacity: 0.97; }
+  80%      { opacity: 1; }
+  90%      { opacity: 0.94; }
+}
+
+/* Wind — curtains (sway + translateX) */
+@keyframes sprite-wind {
+  0%, 100% { transform: var(--sprite-base-transform, none) rotate(0deg) translateX(0); }
+  30%      { transform: var(--sprite-base-transform, none) rotate(1.8deg) translateX(2px); }
+  70%      { transform: var(--sprite-base-transform, none) rotate(-1.5deg) translateX(-1.5px); }
+}
+
+/* Flutter — sticky notes, calendar (rotate + translateY) */
+@keyframes sprite-flutter {
+  0%, 100% { transform: var(--sprite-base-transform, none) rotate(0deg) translateY(0); }
+  33%      { transform: var(--sprite-base-transform, none) rotate(1.5deg) translateY(-1px); }
+  66%      { transform: var(--sprite-base-transform, none) rotate(-1deg) translateY(0.5px); }
+}
+
+/* ── Sprite idle animation classes ── */
+.sprite-idle-wobble   { animation: sprite-wobble   4s ease-in-out infinite; }
+.sprite-idle-breathe  { animation: sprite-breathe  6s ease-in-out infinite; }
+.sprite-idle-sway     { animation: sprite-sway     5s ease-in-out infinite; transform-origin: bottom center; }
+.sprite-idle-flicker  { animation: sprite-flicker  3s ease-in-out infinite; }
+.sprite-idle-wind     { animation: sprite-wind     7s ease-in-out infinite; transform-origin: top center; }
+.sprite-idle-flutter  { animation: sprite-flutter  4.5s ease-in-out infinite; }
+
+/* ── Room Engine states ── */
+.pixel-room-engine--dimmed .room-sprite {
+  filter: brightness(0.3) blur(2px) !important;
+  transition: filter 0.6s ease;
+}
+
+.room-sprite {
+  transition: filter 0.5s ease, box-shadow 0.3s ease;
+}
+
+.room-sprite:hover {
+  filter: brightness(1.2) !important;
+  z-index: 99 !important;
 }
 
 /* ─── Vignette Overlay ─── */
@@ -2450,3 +2500,83 @@ span[data-wiki-link]:hover {
   from { opacity: 1; transform: translateY(0) scale(1); }
   to   { opacity: 0; transform: translateY(-8px) scale(0.95); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   R5.5-P4: Sprite Idle Animations & Utility Classes
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Wobble */
+@keyframes sf-wobble {
+  0%, 100% { transform: rotate(-1.5deg) scale(1); }
+  50% { transform: rotate(1.5deg) scale(1.02); }
+}
+.sprite-idle-wobble, .anim-wobble {
+  animation-name: sf-wobble;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform-origin: center center;
+}
+
+/* 2. Breathe */
+@keyframes sf-breathe {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  50% { transform: scaleY(1.025) scaleX(0.985); }
+}
+.sprite-idle-breathe, .anim-breathe {
+  animation-name: sf-breathe;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform-origin: bottom center;
+}
+
+/* 3. Sway */
+@keyframes sf-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.sprite-idle-sway, .anim-sway {
+  animation-name: sf-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform-origin: top center;
+}
+
+/* 4. Flicker */
+@keyframes sf-flicker {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 1; }
+  50% { opacity: 0.88; }
+  55% { opacity: 0.98; }
+  60% { opacity: 0.92; }
+  65% { opacity: 1; }
+}
+.sprite-idle-flicker, .anim-flicker {
+  animation-name: sf-flicker;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* 5. Wind */
+@keyframes sf-wind {
+  0%, 100% { transform: skewX(-1.5deg) scaleX(1); }
+  50% { transform: skewX(2deg) scaleX(1.02); }
+}
+.sprite-idle-wind, .anim-wind {
+  animation-name: sf-wind;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform-origin: top center;
+}
+
+/* 6. Flutter */
+@keyframes sf-flutter {
+  0%, 100% { transform: rotate(0deg) skewY(0deg); }
+  25% { transform: rotate(1.2deg) skewY(0.6deg); }
+  75% { transform: rotate(-1.2deg) skewY(-0.6deg); }
+}
+.sprite-idle-flutter, .anim-flutter {
+  animation-name: sf-flutter;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transform-origin: top left;
+}
