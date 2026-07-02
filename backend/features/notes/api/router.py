@@ -8,10 +8,67 @@ from backend.features.user_auth.api.dependencies import get_current_user
 from ..application import service
 from ..domain.schemas import (
     NoteFolderCreate, NoteFolderRead, NoteFolderUpdate,
-    NoteCreate, NoteRead, NoteUpdate, PaginatedNotesResponse
+    NoteCreate, NoteRead, NoteUpdate, PaginatedNotesResponse,
+    NoteTemplateCreate, NoteTemplateRead, NoteTemplateUpdate,
+    NoteSearchQuery, NoteSearchResponse, NoteVersionRead,
+    NoteLinkRead, NoteLinksResponse, NoteLinksUpdateRequest
 )
 
 router = APIRouter(prefix="/notes", tags=["notes"])
+
+@router.get("/search", response_model=NoteSearchResponse)
+async def search_notes(
+    query: NoteSearchQuery = Depends(),
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Search notes using full-text search."""
+    return await service.search_notes(db=db, user_id=current_user.user_id, query=query)
+
+@router.get("/templates", response_model=list[NoteTemplateRead])
+async def get_templates(
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """List all templates for the user."""
+    return await service.get_templates(db=db, user_id=current_user.user_id)
+
+@router.post("/templates", response_model=NoteTemplateRead, status_code=status.HTTP_201_CREATED)
+async def create_template(
+    template_data: NoteTemplateCreate,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Create a new note template."""
+    return await service.create_template(db=db, user_id=current_user.user_id, template_data=template_data)
+
+@router.get("/templates/{template_id}", response_model=NoteTemplateRead)
+async def get_template(
+    template_id: UUID,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Get a specific note template."""
+    return await service.get_template_by_id(db=db, user_id=current_user.user_id, template_id=template_id)
+
+@router.patch("/templates/{template_id}", response_model=NoteTemplateRead)
+async def update_template(
+    template_id: UUID,
+    template_data: NoteTemplateUpdate,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Update a note template."""
+    return await service.update_template(db=db, user_id=current_user.user_id, template_id=template_id, template_data=template_data)
+
+@router.delete("/templates/{template_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_template(
+    template_id: UUID,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Delete a note template."""
+    await service.delete_template(db=db, user_id=current_user.user_id, template_id=template_id)
 
 @router.get("/workspace")
 async def get_workspace(
@@ -94,3 +151,41 @@ async def delete_note(
 ):
     """Delete a note."""
     await service.delete_note(db=db, user_id=current_user.user_id, note_id=note_id)
+
+@router.get("/{note_id}/versions", response_model=list[NoteVersionRead])
+async def get_note_versions(
+    note_id: UUID,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """List all versions of a note."""
+    return await service.get_note_versions(db=db, user_id=current_user.user_id, note_id=note_id)
+
+@router.post("/{note_id}/versions/{version_id}/restore", response_model=NoteRead)
+async def restore_note_version(
+    note_id: UUID,
+    version_id: UUID,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Restore a note to a specific version."""
+    return await service.restore_note_version(db=db, user_id=current_user.user_id, note_id=note_id, version_id=version_id)
+
+@router.get("/{note_id}/links", response_model=NoteLinksResponse)
+async def get_note_links(
+    note_id: UUID,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Get incoming and outgoing links for a note."""
+    return await service.get_note_links(db=db, user_id=current_user.user_id, note_id=note_id)
+
+@router.post("/{note_id}/links", status_code=status.HTTP_204_NO_CONTENT)
+async def update_note_links(
+    note_id: UUID,
+    links_data: NoteLinksUpdateRequest,
+    db: AsyncSession = Depends(get_write_session),
+    current_user = Depends(get_current_user)
+):
+    """Update all outgoing links for a note."""
+    await service.update_note_links(db=db, user_id=current_user.user_id, note_id=note_id, target_ids=links_data.target_ids)

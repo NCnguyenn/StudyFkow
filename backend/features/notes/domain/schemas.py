@@ -246,3 +246,27 @@ class BlockStylePresetResponse(BaseModel):
 class BatchUpdateThemeRequest(BaseModel):
     note_ids: list[UUID]
     theme_id: str
+
+class NoteVersionRead(BaseModel):
+    id: UUID
+    note_id: UUID
+    content_json: Dict[str, Any]
+    name: Optional[str] = None
+    is_checkpoint: bool
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class NoteLinkRead(BaseModel):
+    source_id: UUID
+    target_id: UUID
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class NoteLinksResponse(BaseModel):
+    incoming: list[NoteLinkRead]
+    outgoing: list[NoteLinkRead]
+
+class NoteLinksUpdateRequest(BaseModel):
+    target_ids: list[UUID]
