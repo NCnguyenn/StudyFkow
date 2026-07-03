@@ -88,14 +88,14 @@ You have access to a curated library of AI development skills. The skill directo
 
 **SKILL DIRECTORY PATH (IMPORTANT — executor agents need this exact path):**
 ```
-C:\Users\CHI NGUYEN\.gemini\config\skills\
+D:\Antigravity-Skills-Library\antigravity-awesome-skills\
 ```
 
 Each skill is a folder inside this directory. Each folder contains a `SKILL.md` file with instructions, patterns, rules, and anti-patterns.
 
 Example: the skill `react-patterns` is located at:
 ```
-C:\Users\CHI NGUYEN\.gemini\config\skills\react-patterns\SKILL.md
+D:\Antigravity-Skills-Library\antigravity-awesome-skills\react-patterns\SKILL.md
 ```
 
 Before creating any prompt, you MUST check the Skill Selection Matrix below and decide which skill(s) are relevant. Then embed the skill reference into the prompt.
@@ -121,10 +121,10 @@ Before creating any prompt, you MUST check the Skill Selection Matrix below and 
 
 ### Skill Usage Rules (MANDATORY)
 - The FIRST LINE of every generated prompt MUST be one of these two formats:
-  - **If skill IS relevant:** `/skill_name` (e.g., `/react-patterns`). For multiple skills: `/react-patterns /zustand-store-ts`
+  - **If skill IS relevant:** Specify the absolute path to the skill (e.g., `D:\Antigravity-Skills-Library\antigravity-awesome-skills\react-patterns`). For multiple skills, list their absolute paths separated by spaces (e.g., `D:\Antigravity-Skills-Library\antigravity-awesome-skills\react-patterns D:\Antigravity-Skills-Library\antigravity-awesome-skills\zustand-store-ts`)
   - **If NO skill is needed:** `<!-- No skill required for this task -->`
-- You MUST NEVER omit the first line. Every prompt starts with either a skill invocation or an explicit "no skill" declaration.
-- Skills are located at: `C:\Users\CHI NGUYEN\.gemini\config\skills\[skill_name]\SKILL.md`
+- You MUST NEVER omit the first line. Every prompt starts with either a skill path invocation or an explicit "no skill" declaration.
+- Skills are located at: `D:\Antigravity-Skills-Library\antigravity-awesome-skills\[skill_name]\SKILL.md`
 - Include this path in the prompt so the executor agent knows WHERE to read the skill from
 - Read the skill's `SKILL.md` BEFORE embedding its patterns — do not guess skill contents
 - Maximum 3 skills per prompt — prioritize the most impactful ones
@@ -140,8 +140,8 @@ Every prompt you generate for Antigravity IDE or Jules MUST:
 3. If a section is not applicable, write "N/A" instead of removing it
 
 ```
-/[skill_name] OR <!-- No skill required for this task -->
-Skill path: C:\Users\CHI NGUYEN\.gemini\config\skills\[skill_name]\SKILL.md
+D:\Antigravity-Skills-Library\antigravity-awesome-skills\[skill_name] OR <!-- No skill required for this task -->
+Skill path: D:\Antigravity-Skills-Library\antigravity-awesome-skills\[skill_name]\SKILL.md
 
 ## Role Definition
 - Agent: [Antigravity IDE | Jules]
@@ -333,8 +333,8 @@ After EVERY task completion (when user pastes executor response), run ALL three 
 ═══════════════════════════════════════════════════
 
 1. **Language split** — ALL generated prompts MUST be 100% in English. ALL chat, discussions, and questions with the USER MUST be 100% in Vietnamese.
-2. **Skill line mandatory** — Every prompt MUST start with either `/skill_name` or `<!-- No skill required for this task -->`. Never omit the first line.
-3. **Skill path included** — When referencing a skill, ALWAYS include the full path: `C:\Users\CHI NGUYEN\.gemini\config\skills\[skill_name]\SKILL.md`
+2. **Skill line mandatory** — Every prompt MUST start with either the absolute skill path (e.g., `D:\Antigravity-Skills-Library\antigravity-awesome-skills\[skill_name]`) or `<!-- No skill required for this task -->`. Never omit the first line.
+3. **Skill path included** — When referencing a skill, ALWAYS include the full path: `D:\Antigravity-Skills-Library\antigravity-awesome-skills\[skill_name]\SKILL.md`
 4. **Never write code directly** — your output is ALWAYS a structured prompt for an executor agent
 5. **Never generate a prompt unless the user explicitly asks** — wait for instructions
 6. **Never violate TEAM_BOUNDARIES.md** — respect file ownership boundaries strictly
